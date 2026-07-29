@@ -10,16 +10,12 @@
 
 The onboarding experience prioritizes immediate value delivery with zero-friction entry points.
 
-```
-[ Splash Screen ] 
-       ↓
-[ Biometric / Local Auth ] (Silent background initialization)
-       ↓
-[ Permissions Primer ] (Microphone, Camera, Storage)
-       ↓
-[ Quick Interactive Demo ] (3-second capture demonstration)
-       ↓
-[ Home Screen (Quick Capture Mode) ]
+```mermaid
+graph TD
+    Splash[Splash Screen] --> Auth[Biometric / Local Auth<br/>Silent background initialization]
+    Auth --> Permissions[Permissions Primer<br/>Microphone, Camera, Storage]
+    Permissions --> Demo[Quick Interactive Demo<br/>3-second capture demonstration]
+    Demo --> Home[Home Screen<br/>Quick Capture Mode]
 ```
 
 ---
@@ -28,43 +24,36 @@ The onboarding experience prioritizes immediate value delivery with zero-frictio
 
 Idea capture is the foundational entry point of ThinkNest.
 
-```
-[ User Audio Input ]
-       ↓
-[ Instant Local STT (speech_to_text) ] ── (Project Card Created Instantly < 100ms)
-       ↓
-[ Save Temporary Audio File (.m4a/.wav) ]
-       ↓
-(Network Available?)
-       ├── YES ──► [ Async Upload to Supabase Storage ] ──► [ Whisper Cloud Refinement ]
-       │                                                              │
-       │                                               [ Orchestrator Confidence Check ]
-       │                                                              │
-       │                                              (Improvement > Threshold?)
-       │                                                ├── YES ──► [ Mutate DNA & Snapshot ]
-       │                                                └── NO  ──► [ Keep Original ]
-       │                                                              │
-       │                                               [ Auto-Delete Temp Audio File ]
-       │
-       └── NO  ──► [ Retain Local STT Transcript ] (Upload Queued until Connection)
+```mermaid
+graph TD
+    Input[User Audio Input] --> LocalSTT[Instant Local STT speech_to_text]
+    LocalSTT -- Project Card Created Instantly < 100ms --> SaveTemp[Save Temporary Audio File .m4a/.wav]
+    SaveTemp --> NetworkCheck{Network Available?}
+
+    NetworkCheck -- YES --> Upload[Async Upload to Supabase Storage]
+    Upload --> Whisper[Whisper Cloud Refinement]
+    Whisper --> ConfidenceCheck[Orchestrator Confidence Check]
+
+    ConfidenceCheck --> ImproveCheck{Improvement > Threshold?}
+    ImproveCheck -- YES --> Mutate[Mutate DNA & Snapshot]
+    ImproveCheck -- NO --> Keep[Keep Original]
+
+    Mutate --> DeleteTemp[Auto-Delete Temp Audio File]
+    Keep --> DeleteTemp
+
+    NetworkCheck -- NO --> RetainLocal[Retain Local STT Transcript<br/>Upload Queued until Connection]
 ```
 
 ---
 
 ## 3. Asynchronous Offline AI Tasks Flow (ADR #8)
 
-```
-[ User Triggers Grill-me / Doc Generation (Offline) ]
-       ↓
-[ App Creates AI Task Record: "Pending - Waiting for Connection" ]
-       ↓
-[ User Continues Working Normally (Unblocked UX) ]
-       ↓
-[ Connectivity Restored ]
-       ↓
-[ Sync Engine Submits Task to AI Orchestrator ]
-       ↓
-[ Document Generated + DNA Mutated + Snapshot Created ]
-       ↓
-[ User Notified via Local Notification ]
+```mermaid
+graph TD
+    Trigger[User Triggers Grill-me / Doc Generation Offline] --> TaskRecord[App Creates AI Task Record: 'Pending - Waiting for Connection']
+    TaskRecord --> UnblockedUX[User Continues Working Normally Unblocked UX]
+    UnblockedUX --> ConnectionRestored[Connectivity Restored]
+    ConnectionRestored --> SyncEngine[Sync Engine Submits Task to AI Orchestrator]
+    SyncEngine --> GenDoc[Document Generated + DNA Mutated + Snapshot Created]
+    GenDoc --> Notify[User Notified via Local Notification]
 ```

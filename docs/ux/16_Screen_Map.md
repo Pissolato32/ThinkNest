@@ -8,34 +8,27 @@
 
 ## 1. Route Navigation Diagram
 
-```
-                              ┌────────────────────┐
-                              │  [Splash / Auth]   │
-                              └─────────┬──────────┘
-                                        │
-                                        ▼
-                              ┌────────────────────┐
-                              │    [Home Screen]   │
-                              └─────────┬──────────┘
-                                        │
-         ┌──────────────────┬───────────┼───────────┬──────────────────┐
-         ▼                  ▼           ▼           ▼                  ▼
-┌─────────────────┐ ┌───────────────┐ ┌───────────┐ ┌───────────────┐ ┌─────────────────┐
-│Quick Capture Bar│ │Recent Projects│ │Pinned Grid│ │ Global Search │ │Settings Screen  │
-└────────┬────────┘ └───────┬───────┘ └─────┬─────┘ └───────┬───────┘ └────────┬────────┘
-         │                  │               │               │                  │
-         └──────────────────┴───────┬───────┴───────────────┘                  │
-                                    │                                          ▼
-                                    ▼                                 ┌─────────────────┐
-                         ┌─────────────────────┐                      │ Premium Screen  │
-                         │  [Project Workspace]│                      └─────────────────┘
-                         └──────────┬──────────┘
-                                    │
-         ┌──────────────────┬───────┼───────┬──────────────────┐
-         ▼                  ▼       ▼       ▼                  ▼
-  ┌──────────────┐   ┌────────────┐┌───────────┐┌───────────┐ ┌────────────────────┐
-  │ Overview Tab │   │ Chat Tab   ││ Docs Tab  ││ Assets Tab│ │ Export Pack Modal  │
-  └──────────────┘   └────────────┘└───────────┘└───────────┘ └────────────────────┘
+```mermaid
+graph TD
+    Splash[Splash / Auth] --> Home[Home Screen]
+
+    Home --> QuickCapture[Quick Capture Bar]
+    Home --> RecentProjects[Recent Projects]
+    Home --> PinnedGrid[Pinned Grid]
+    Home --> GlobalSearch[Global Search]
+    Home --> Settings[Settings Screen]
+
+    QuickCapture --> ProjectWorkspace[Project Workspace]
+    RecentProjects --> ProjectWorkspace
+    PinnedGrid --> ProjectWorkspace
+
+    Settings --> PremiumScreen[Premium Screen]
+
+    ProjectWorkspace --> OverviewTab[Overview Tab]
+    ProjectWorkspace --> ChatTab[Chat Tab]
+    ProjectWorkspace --> DocsTab[Docs Tab]
+    ProjectWorkspace --> AssetsTab[Assets Tab]
+    ProjectWorkspace --> ExportModal[Export Pack Modal]
 ```
 
 ---
