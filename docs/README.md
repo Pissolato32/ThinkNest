@@ -7,6 +7,25 @@
 
 ThinkNest is documented as an AI-assisted product-incubation platform. This hub is the canonical entry point for understanding the product vision, architectural constitution, feature behavior, operational expectations, and implementation contracts.
 
+> **Canonical source:** the `docs/` folder is the single source of
+> truth for all documentation. `docs.zip` is a generated snapshot
+> for offline distribution only — it is not maintained independently
+> and may lag behind `docs/`. Always prefer `docs/` when in doubt.
+
+
+## Implementation status
+
+This repository currently contains specification and architecture
+documentation only (`docs/`). It does not yet contain the ThinkNest
+Flutter/Supabase application source code.
+
+- Application source code: not yet present in this repository.
+- Purpose of this repository at this stage: architectural constitution
+  and implementation contracts to guide future development.
+
+This section will be updated with a link to the implementation
+repository once development begins.
+
 ## Documentation quality level: AAA
 
 This documentation set is maintained against the ThinkNest **AAA documentation bar**:
