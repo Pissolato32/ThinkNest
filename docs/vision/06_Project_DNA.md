@@ -68,6 +68,7 @@
 ## 3. DNA Mutation & Context Rules
 
 1. **Continuous Orchestrator Sync:** Updated asynchronously after every user answer or decision.
-2. **Deterministic Token Limit:** Strict cap (<1,500 tokens) for LLM context payload efficiency.
+2. **Deterministic Token Limit:** Strict cap (<1,500 tokens) for LLM context payload efficiency. Enforced via the Context Compression pipeline defined in ADR-0023 (Raw -> Summary -> Facts).
 3. **Immutability of Documents:** Document generation snapshots reference exact DNA versions.
-4. **Transient History Pruning:** Historical chat turns are archived while Project DNA retains the distilled intelligence.
+
+**Note on Schema Nullability:** String fields such as `active_specialist` within `specialist_state` are nullable (`null`) when no specialist is actively engaged in the conversation turn. Date fields (`last_updated`) must strictly follow ISO 8601 formatting for cloud sync, but are parsed to Epoch integers for local SQLite/Drift indexing.
