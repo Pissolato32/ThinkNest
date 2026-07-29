@@ -2,13 +2,13 @@
 
 **Version:** 3.0  
 **Status:** Approved & Normative  
-**Authoritative Constitution:** [00_ADRS.md](file:///c:/Projetos/ThinkNest/docs/architecture/00_ADRS.md)
+**Authoritative Constitution:** [00_ADRS.md](00_ADRS.md)
 
 ---
 
 ## 1. Architectural Constitution Summary (ADRs 0001 - 0028)
 
-ThinkNest's system architecture is strictly governed by 28 authoritative ADRs detailed in [00_ADRS.md](file:///c:/Projetos/ThinkNest/docs/architecture/00_ADRS.md):
+ThinkNest's system architecture is strictly governed by 28 authoritative ADRs detailed in [00_ADRS.md](00_ADRS.md):
 
 | ADR | Title | Key Architectural Principle |
 |---|---|---|
