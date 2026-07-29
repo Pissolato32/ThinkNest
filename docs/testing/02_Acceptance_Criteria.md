@@ -17,7 +17,7 @@
 {
   "project_id": "f47ac10b-58cc-4372-a567-0e02b2c3d479",
   "version": 1,
-  "last_updated": "2023-10-24T10:00:00Z",
+  "last_updated": "<ISO8601 timestamp>",
   "identity": {
     "title": "New Idea",
     "one_liner": "A quick thought captured on the go",
@@ -52,7 +52,7 @@
 {
   "project_id": "f47ac10b-58cc-4372-a567-0e02b2c3d479",
   "version": 4,
-  "last_updated": "2023-10-24T10:15:00Z",
+  "last_updated": "<ISO8601 timestamp>",
   "identity": {
     "title": "Automated Plant Watering",
     "one_liner": "Smart IoT system to water indoor plants automatically.",
@@ -95,7 +95,7 @@
 {
   "project_id": "f47ac10b-58cc-4372-a567-0e02b2c3d479",
   "version": 10,
-  "last_updated": "2023-10-24T11:30:00Z",
+  "last_updated": "<ISO8601 timestamp>",
   "identity": {
     "title": "Automated Plant Watering",
     "one_liner": "Smart IoT system to water indoor plants automatically.",
