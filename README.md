@@ -15,11 +15,21 @@ The implementation is being delivered incrementally through vertical slices. The
 
 `Capture → Project → Project DNA → Conversation → Documents → Readiness → Implementation Pack`
 
-The authoritative implementation roadmap is [docs/IMPLEMENTATION_PLAN.md](docs/IMPLEMENTATION_PLAN.md).
+See [docs/IMPLEMENTATION_PLAN.md](docs/IMPLEMENTATION_PLAN.md) and issue [#5](https://github.com/Pissolato32/ThinkNest/issues/5).
 
-## Development
+## Local development
 
-The Flutter application is being introduced in P0.1. Until that slice lands, the repository should be treated as the architecture and product constitution rather than a runnable application.
+The P0.1 source shell is now present.
+
+```bash
+flutter create . --platforms=android,web
+flutter pub get
+flutter analyze
+flutter test
+flutter run
+```
+
+`flutter create` is currently needed because the repository intentionally commits the platform-independent application source first; generated Android/Web platform files will be added when the first runnable application slice is stabilized.
 
 ## Documentation
 
