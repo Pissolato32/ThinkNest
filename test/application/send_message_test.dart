@@ -22,9 +22,7 @@ class FakeConversationRepository implements ConversationRepository {
 
   @override
   Stream<List<ConversationMessage>> watchMessages(String projectId) async* {
-    yield messages
-        .where((message) => message.projectId == projectId)
-        .toList();
+    yield messages.where((message) => message.projectId == projectId).toList();
   }
 }
 
