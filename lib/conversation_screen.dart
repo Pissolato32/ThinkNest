@@ -2,8 +2,9 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import 'core/domain/conversation/conversation_message.dart';
-import 'documents_screen.dart';
 import 'core/providers/project_providers.dart';
+import 'documents_screen.dart';
+import 'readiness_screen.dart';
 
 class ConversationScreen extends ConsumerStatefulWidget {
   const ConversationScreen({
@@ -59,6 +60,18 @@ class _ConversationScreenState extends ConsumerState<ConversationScreen> {
       appBar: AppBar(
         title: Text(widget.title),
         actions: [
+          IconButton(
+            tooltip: 'Readiness',
+            onPressed: () => Navigator.of(context).push(
+              MaterialPageRoute<void>(
+                builder: (_) => ReadinessScreen(
+                  projectId: widget.projectId,
+                  title: widget.title,
+                ),
+              ),
+            ),
+            icon: const Icon(Icons.fact_check_outlined),
+          ),
           IconButton(
             tooltip: 'Documentos',
             onPressed: () => Navigator.of(context).push(
