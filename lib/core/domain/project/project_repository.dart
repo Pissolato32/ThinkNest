@@ -1,5 +1,6 @@
 import 'project.dart';
 import 'project_dna.dart';
+import 'project_snapshot.dart';
 
 abstract interface class ProjectRepository {
   Future<Project?> getById(String id);
@@ -15,4 +16,6 @@ abstract interface class ProjectRepository {
   Future<ProjectDna?> getDna(String projectId);
 
   Future<void> saveDna(ProjectDna dna);
+
+  Future<void> createSnapshot(ProjectSnapshot snapshot);
 }
