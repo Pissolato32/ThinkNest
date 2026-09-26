@@ -35,7 +35,8 @@ class DnaMerger {
         case DnaInferenceType.identity:
           changed = _put(identity, inference.key, inference.value) || changed;
         case DnaInferenceType.corePillar:
-          changed = _put(corePillars, inference.key, inference.value) || changed;
+          changed =
+              _put(corePillars, inference.key, inference.value) || changed;
         case DnaInferenceType.technicalConstraint:
           changed =
               _put(technicalConstraints, inference.key, inference.value) || changed;
