@@ -31,9 +31,6 @@ jobs:
       - name: Generate Drift code
         run: dart run build_runner build --delete-conflicting-outputs
 
-      - name: Show canonical formatter output for P0.5 diagnosis
-        run: dart format --output=show lib/core/application/dna/dna_merger.dart lib/core/application/dna/rule_based_dna_extractor.dart
-
       - name: Verify formatting
         run: |
           set +e
