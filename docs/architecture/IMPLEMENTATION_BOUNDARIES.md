@@ -36,6 +36,10 @@ Authentication, cloud synchronization, plugins, premium, analytics, and secondar
 
 The implementation target is Flutter/Dart. References to React Native, WatermelonDB, Jest, Detox, and RxJS in older specifications are considered legacy and must not be used for new code. The affected documents will be corrected as their implementation slice is completed.
 
+## Dart/Flutter and CI standards
+
+The implementation must follow [`DART_FLUTTER_CI_STANDARDS.md`](DART_FLUTTER_CI_STANDARDS.md). This includes canonical `dart format`, deterministic Flutter/Dart tooling, valid Dart typing, canonical imports, Drift code generation, automated tests, and the rule that a P0 slice cannot advance while CI is red.
+
 ## Verification
 
 Every implementation slice must provide:
