@@ -73,7 +73,13 @@ class ProjectSnapshots extends Table {
   Set<Column> get primaryKey => {id};
 }
 
-@DriftDatabase(tables: [Projects, ProjectDnaRows, ProjectSnapshots, ConversationMessages, AiTasks])
+@DriftDatabase(tables: [
+  Projects,
+  ProjectDnaRows,
+  ProjectSnapshots,
+  ConversationMessages,
+  AiTasks
+])
 class ThinkNestDatabase extends _$ThinkNestDatabase {
   ThinkNestDatabase([QueryExecutor? executor])
       : super(executor ?? driftDatabase(name: 'thinknest'));
