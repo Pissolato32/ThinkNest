@@ -3,7 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../application/project/create_project.dart';
 import '../domain/project/project.dart';
 import '../domain/project/project_repository.dart';
-import '../infrastructure/database/thinknest_database.dart';
+import '../infrastructure/database/thinknest_database.dart' hide Project;
 import '../infrastructure/project/drift_project_repository.dart';
 
 final databaseProvider = Provider<ThinkNestDatabase>((ref) {
