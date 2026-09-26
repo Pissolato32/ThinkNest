@@ -103,6 +103,12 @@ A implementação deve preservar os princípios da Constituição: offline-first
 
 **Saída:** artefato consumível por ferramentas de execução.
 
+## Padrão Dart/Flutter e CI
+
+As regras operacionais de linguagem, formatação, imports, Drift, testes e diagnóstico estão consolidadas em [`docs/architecture/DART_FLUTTER_CI_STANDARDS.md`](architecture/DART_FLUTTER_CI_STANDARDS.md). Esse documento é normativo e deve ser consultado antes de integrar código Dart/Flutter.
+
+A correção deve ser feita na causa, não no quality gate. Em especial, `dart format --set-exit-if-changed lib test` é uma barreira obrigatória e `flutter analyze` só é tratado depois que o formatter passa.
+
 ## Quality Gate — obrigatório antes de avançar uma fatia
 
 Nenhuma nova fatia P0 pode ser iniciada enquanto o CI do commit-base não estiver verde.
