@@ -35,12 +35,21 @@ A implementação deve preservar os princípios da Constituição: offline-first
 **Saída:** projeto criado e persistido sem Internet.
 
 ### P0.3 — Quick Capture
-- [ ] Home com campo de captura imediato.
-- [ ] Criar projeto local em um único envio.
-- [ ] Não bloquear captura por autenticação/sync/IA.
-- [ ] Estados Captured/Exploring.
+- [x] Home com campo de captura imediato.
+- [x] Criar projeto local em um único envio.
+- [x] Não bloquear captura por autenticação/sync/IA.
+- [x] Estado inicial Captured; transição para Exploring permanece como próxima evolução de domínio.
 
 **Saída:** ideia → projeto local em poucos segundos.
+
+**Implementado:**
+- caso de uso `CreateProject`;
+- `DriftProjectRepository` atrás da interface de domínio;
+- Project + Project DNA inicial persistidos em transação local;
+- Riverpod para injeção de banco/repositório/casos de uso;
+- lista reativa de projetos capturados;
+- testes de aplicação, persistência Drift e fluxo de UI;
+- CI #46 verde com formatação, análise, geração Drift e testes.
 
 ### P0.4 — Conversation + PAL
 - [ ] Contrato provider-neutral.
