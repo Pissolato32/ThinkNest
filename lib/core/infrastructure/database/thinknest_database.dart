@@ -116,4 +116,7 @@ class ThinkNestDatabase extends _$ThinkNestDatabase {
 
   Future<void> upsertDna(ProjectDnaRowsCompanion entry) =>
       into(projectDnaRows).insertOnConflictUpdate(entry);
+
+  Future<void> insertSnapshot(ProjectSnapshotsCompanion entry) =>
+      into(projectSnapshots).insert(entry);
 }
