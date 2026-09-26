@@ -1,4 +1,5 @@
-import 'package:cross_file/cross_file.dart';
+import 'dart:typed_data';
+
 import 'package:share_plus/share_plus.dart';
 
 import '../../domain/export/implementation_pack.dart';
@@ -11,7 +12,7 @@ class ShareImplementationPack {
       ShareParams(
         files: [
           XFile.fromData(
-            pack.zipBytes,
+            Uint8List.fromList(pack.zipBytes),
             name: filename,
             mimeType: 'application/zip',
           ),
