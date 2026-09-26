@@ -59,6 +59,23 @@ class AiTasks extends Table {
   Set<Column> get primaryKey => {id};
 }
 
+class Documents extends Table {
+  TextColumn get id => text()();
+  TextColumn get projectId =>
+      text().references(Projects, #id, onDelete: KeyAction.cascade)();
+  TextColumn get type => text()();
+  IntColumn get version => integer()();
+  TextColumn get status => text()();
+  TextColumn get title => text()();
+  TextColumn get content => text()();
+  IntColumn get dnaVersion => integer()();
+  DateTimeColumn get createdAt => dateTime()();
+  DateTimeColumn get updatedAt => dateTime()();
+
+  @override
+  Set<Column> get primaryKey => {id};
+}
+
 class ProjectSnapshots extends Table {
   TextColumn get id => text()();
   TextColumn get projectId =>
@@ -77,6 +94,7 @@ class ProjectSnapshots extends Table {
   Projects,
   ProjectDnaRows,
   ProjectSnapshots,
+  Documents,
   ConversationMessages,
   AiTasks
 ])
@@ -85,7 +103,7 @@ class ThinkNestDatabase extends _$ThinkNestDatabase {
       : super(executor ?? driftDatabase(name: 'thinknest'));
 
   @override
-  int get schemaVersion => 3;
+  int get schemaVersion => 4;
 
   @override
   MigrationStrategy get migration => MigrationStrategy(
@@ -97,6 +115,9 @@ class ThinkNestDatabase extends _$ThinkNestDatabase {
           }
           if (from < 3) {
             await m.addColumn(aiTasks, aiTasks.payloadJson);
+          }
+          if (from < 4) {
+            await m.createTable(documents);
           }
         },
       );
@@ -119,4 +140,7 @@ class ThinkNestDatabase extends _$ThinkNestDatabase {
 
   Future<void> insertSnapshot(ProjectSnapshotsCompanion entry) =>
       into(projectSnapshots).insert(entry);
+
+  Future<void> insertDocument(DocumentsCompanion entry) =>
+      into(documents).insert(entry);
 }
