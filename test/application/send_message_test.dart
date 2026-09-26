@@ -114,7 +114,7 @@ void main() {
   test('AiProvider exposes a streaming contract', () async {
     final chunks = await FakeProvider()
         .stream(
-          const AiRequest(
+          AiRequest(
             projectId: 'project-1',
             dna: ProjectDna(
               projectId: 'project-1',
