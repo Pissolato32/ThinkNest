@@ -5,11 +5,11 @@ import '../application/project/create_project.dart';
 import '../domain/ai/ai_provider.dart';
 import '../domain/ai/ai_task_repository.dart';
 import '../domain/conversation/conversation_repository.dart';
+import '../domain/project/project.dart';
+import '../domain/project/project_repository.dart';
 import '../infrastructure/ai/drift_ai_task_repository.dart';
 import '../infrastructure/ai/echo_provider.dart';
 import '../infrastructure/conversation/drift_conversation_repository.dart';
-import '../domain/project/project.dart';
-import '../domain/project/project_repository.dart';
 import '../infrastructure/database/thinknest_database.dart' hide Project;
 import '../infrastructure/project/drift_project_repository.dart';
 
