@@ -84,15 +84,13 @@ class DriftProjectRepository implements ProjectRepository {
       version: json['version'] as int,
       updatedAt: DateTime.parse(json['last_updated'] as String),
       identity: Map<String, Object?>.from(json['identity'] as Map),
-      corePillars:
-          Map<String, Object?>.from(json['core_pillars'] as Map),
+      corePillars: Map<String, Object?>.from(json['core_pillars'] as Map),
       technicalConstraints:
           Map<String, Object?>.from(json['technical_constraints'] as Map),
       keyDecisions: (json['key_decisions'] as List)
           .map((item) => Map<String, Object?>.from(item as Map))
           .toList(),
-      openUncertainties:
-          List<String>.from(json['open_uncertainties'] as List),
+      openUncertainties: List<String>.from(json['open_uncertainties'] as List),
       specialistState:
           Map<String, Object?>.from(json['specialist_state'] as Map),
     );
