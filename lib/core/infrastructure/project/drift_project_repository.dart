@@ -1,17 +1,19 @@
 import 'dart:convert';
 
-import '../../domain/project/project.dart';
+import 'package:drift/drift.dart';
+
+import '../../domain/project/project.dart' as domain;
 import '../../domain/project/project_dna.dart';
 import '../../domain/project/project_repository.dart';
-import '../database/thinknest_database.dart';
+import '../database/thinknest_database.dart' as db;
 
 class DriftProjectRepository implements ProjectRepository {
   DriftProjectRepository(this._database);
 
-  final ThinkNestDatabase _database;
+  final db.ThinkNestDatabase _database;
 
   @override
-  Future<Project?> getById(String id) async {
+  Future<domain.Project?> getById(String id) async {
     try {
       final row = await _database.findProject(id);
       return _fromRow(row);
@@ -21,14 +23,14 @@ class DriftProjectRepository implements ProjectRepository {
   }
 
   @override
-  Stream<List<Project>> watchAll() =>
+  Stream<List<domain.Project>> watchAll() =>
       _database.watchProjects().map((rows) => rows.map(_fromRow).toList());
 
   @override
-  Future<void> create(Project project, {ProjectDna? dna}) async {
+  Future<void> create(domain.Project project, {ProjectDna? dna}) async {
     await _database.transaction(() async {
       await _database.upsertProject(
-        ProjectsCompanion.insert(
+        db.ProjectsCompanion.insert(
           id: project.id,
           title: project.title,
           category: project.category == null
@@ -49,8 +51,8 @@ class DriftProjectRepository implements ProjectRepository {
   }
 
   @override
-  Future<void> update(Project project) => _database.upsertProject(
-        ProjectsCompanion.insert(
+  Future<void> update(domain.Project project) => _database.upsertProject(
+        db.ProjectsCompanion.insert(
           id: project.id,
           title: project.title,
           category: project.category == null
@@ -80,22 +82,25 @@ class DriftProjectRepository implements ProjectRepository {
     return ProjectDna(
       projectId: json['project_id'] as String,
       version: json['version'] as int,
-      updatedAt: DateTime.parse(json['updated_at'] as String),
-      identity: Map<String, dynamic>.from(json['identity'] as Map),
-      corePillars: Map<String, dynamic>.from(json['core_pillars'] as Map),
+      updatedAt: DateTime.parse(json['last_updated'] as String),
+      identity: Map<String, Object?>.from(json['identity'] as Map),
+      corePillars:
+          Map<String, Object?>.from(json['core_pillars'] as Map),
       technicalConstraints:
-          Map<String, dynamic>.from(json['technical_constraints'] as Map),
-      keyDecisions: Map<String, dynamic>.from(json['key_decisions'] as Map),
+          Map<String, Object?>.from(json['technical_constraints'] as Map),
+      keyDecisions: (json['key_decisions'] as List)
+          .map((item) => Map<String, Object?>.from(item as Map))
+          .toList(),
       openUncertainties:
-          Map<String, dynamic>.from(json['open_uncertainties'] as Map),
+          List<String>.from(json['open_uncertainties'] as List),
       specialistState:
-          Map<String, dynamic>.from(json['specialist_state'] as Map),
+          Map<String, Object?>.from(json['specialist_state'] as Map),
     );
   }
 
   @override
   Future<void> saveDna(ProjectDna dna) => _database.upsertDna(
-        ProjectDnaRowsCompanion.insert(
+        db.ProjectDnaRowsCompanion.insert(
           projectId: dna.projectId,
           version: Value(dna.version),
           dnaJson: jsonEncode(dna.toJson()),
@@ -103,13 +108,13 @@ class DriftProjectRepository implements ProjectRepository {
         ),
       );
 
-  Project _fromRow(Project row) => Project(
+  domain.Project _fromRow(db.Project row) => domain.Project(
         id: row.id,
         title: row.title,
         category: row.category,
-        maturity: ProjectMaturity.values.firstWhere(
+        maturity: domain.ProjectMaturity.values.firstWhere(
           (value) => value.name.toUpperCase() == row.maturityLevel,
-          orElse: () => ProjectMaturity.captured,
+          orElse: () => domain.ProjectMaturity.captured,
         ),
         isPinned: row.isPinned,
         isArchived: row.isArchived,
