@@ -39,7 +39,8 @@ class DnaMerger {
               _put(corePillars, inference.key, inference.value) || changed;
         case DnaInferenceType.technicalConstraint:
           changed =
-              _put(technicalConstraints, inference.key, inference.value) || changed;
+              _put(technicalConstraints, inference.key, inference.value) ||
+              changed;
         case DnaInferenceType.decision:
           changed = _mergeDecision(decisions, inference) || changed;
         case DnaInferenceType.uncertainty:
