@@ -19,7 +19,7 @@ See [docs/IMPLEMENTATION_PLAN.md](docs/IMPLEMENTATION_PLAN.md) and issue [#5](ht
 
 ## Local development
 
-The functional Flutter vertical slice now covers Capture → Project → Project DNA → Conversation → Documents → Readiness.
+The functional Flutter vertical slice now covers Capture → Project → Project DNA → Conversation → Documents → Readiness → Implementation Pack.
 
 ```bash
 flutter create . --platforms=android,web --no-pub
