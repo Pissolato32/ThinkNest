@@ -1,6 +1,7 @@
 import 'package:uuid/uuid.dart';
 
 import '../../domain/document/document.dart';
+import '../../domain/document/document_repository.dart';
 import '../../domain/project/project_dna.dart';
 import '../../domain/project/project_repository.dart';
 
