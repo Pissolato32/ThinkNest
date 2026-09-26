@@ -6,7 +6,8 @@ void main() {
   group('Project', () {
     test('defaults to captured maturity', () {
       final now = DateTime.utc(2026, 1, 1);
-      final project = Project(id: 'p1', title: 'Idea', createdAt: now, updatedAt: now);
+      final project =
+          Project(id: 'p1', title: 'Idea', createdAt: now, updatedAt: now);
 
       expect(project.maturity, ProjectMaturity.captured);
       expect(project.isPinned, isFalse);
@@ -15,7 +16,8 @@ void main() {
 
     test('copyWith preserves identity and creation time', () {
       final created = DateTime.utc(2026, 1, 1);
-      final project = Project(id: 'p1', title: 'Idea', createdAt: created, updatedAt: created);
+      final project = Project(
+          id: 'p1', title: 'Idea', createdAt: created, updatedAt: created);
       final updated = project.copyWith(title: 'Updated');
 
       expect(updated.id, 'p1');
