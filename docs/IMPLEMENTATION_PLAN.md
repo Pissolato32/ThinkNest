@@ -1,6 +1,6 @@
 # ThinkNest — Plano de Implementação
 
-**Status:** EXECUÇÃO P0 — CI VERDE ATÉ P0.4; P0.5 EM VALIDAÇÃO  
+**Status:** EXECUÇÃO P0 — P0.1–P0.6 concluídos; P0.7 em implementação  
 **Issue principal:** #5  
 **Fonte normativa:** `docs/`
 
@@ -76,21 +76,37 @@ A implementação deve preservar os princípios da Constituição: offline-first
 **Limite consciente desta fatia:** o extrator inicial é determinístico e provider-neutral; a extração semântica via IA fica desacoplada para a próxima evolução do adapter/orquestrador.
 
 ### P0.6 — Documents
-- [ ] PRD.
-- [ ] Architecture.
-- [ ] lifecycle Draft → Generated → User Reviewed → Approved → Archived.
-- [ ] versões imutáveis.
+- [x] PRD.
+- [x] Architecture.
+- [x] lifecycle Draft → Generated → User Reviewed → Approved → Archived.
+- [x] versões imutáveis.
 
 **Saída:** documentação derivada do DNA.
 
+**Implementado:**
+- documentos versionados persistidos localmente;
+- lifecycle determinístico com aprovação humana;
+- PRD e Architecture derivados da versão exata do DNA;
+- visualização e avanço de lifecycle na UI;
+- testes de persistência e matriz completa de transições.
+
 ### P0.7 — Readiness
-- [ ] Avaliação multidimensional.
-- [ ] blockers.
-- [ ] warnings.
-- [ ] recomendações.
-- [ ] estados NOT_READY / READY_WITH_WARNINGS / READY / BLOCKED.
+- [x] Avaliação multidimensional.
+- [x] blockers.
+- [x] warnings.
+- [x] recomendações.
+- [x] estados NOT_READY / READY_WITH_WARNINGS / READY / BLOCKED.
 
 **Saída:** readiness representa risco/estrutura real, não apenas contagem de cinco campos.
+
+**Implementado:**
+- evaluator determinístico provider-neutral;
+- dimensões de problema, público, proposta de valor, stack, restrições, decisões e documentos;
+- blockers para estrutura crítica ausente;
+- warnings para lacunas, incertezas, riscos e documentos ainda não aprovados;
+- recomendações derivadas dos findings;
+- tela de Readiness integrada ao workspace da conversa;
+- testes cobrindo NOT_READY, READY_WITH_WARNINGS e READY.
 
 ### P0.8 — Implementation Pack
 - [ ] manifest.
