@@ -83,7 +83,11 @@ void main() {
     expect(report.blockers, isEmpty);
     expect(
       report.warnings.map((item) => item.code),
-      containsAll(<String>['key_decisions', 'scope_constraints']),
+      contains('key_decisions'),
+    );
+    expect(
+      report.warnings.map((item) => item.code),
+      isNot(contains('scope_constraints')),
     );
   });
 
