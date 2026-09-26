@@ -22,7 +22,7 @@ See [docs/IMPLEMENTATION_PLAN.md](docs/IMPLEMENTATION_PLAN.md) and issue [#5](ht
 The P0.1 source shell is now present.
 
 ```bash
-flutter create . --platforms=android,web
+flutter create . --platforms=android,web --no-pub
 flutter pub get
 dart run build_runner build --delete-conflicting-outputs
 dart format --set-exit-if-changed lib test
