@@ -31,18 +31,8 @@ jobs:
       - name: Generate Drift code
         run: dart run build_runner build --delete-conflicting-outputs
 
-      - name: Apply Dart formatting temporarily
-        run: dart format lib test
-
-      - name: Upload formatted source for diagnostics
-        if: always()
-        uses: actions/upload-artifact@v4
-        with:
-          name: formatted-source-${{ github.run_id }}
-          path: |
-            lib/
-            test/
-          retention-days: 7
+      - name: Verify formatting
+        run: dart format --output=none --set-exit-if-changed lib test
 
       - name: Analyze
         run: |
