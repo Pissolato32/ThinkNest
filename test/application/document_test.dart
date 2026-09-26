@@ -178,8 +178,8 @@ void main() {
       DocumentStatus.userReviewed,
     );
 
-    expect(
-      () => ChangeDocumentStatus(documents)(
+    await expectLater(
+      ChangeDocumentStatus(documents)(
         documentId: 'd1',
         nextStatus: DocumentStatus.approved,
       ),
