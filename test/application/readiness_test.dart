@@ -87,7 +87,8 @@ void main() {
     );
   });
 
-  test('returns ready when dimensions are complete and documents are approved', () {
+  test('returns ready when dimensions are complete and documents are approved',
+      () {
     final dna = ProjectDna(
       projectId: 'p1',
       version: 3,
