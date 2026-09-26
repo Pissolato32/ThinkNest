@@ -16,9 +16,8 @@ class RuleBasedDnaExtractor implements DnaExtractor {
 
     for (var index = 0; index < matches.length; index++) {
       final match = matches[index];
-      final nextStart = index + 1 < matches.length
-          ? matches[index + 1].start
-          : source.length;
+      final nextStart =
+          index + 1 < matches.length ? matches[index + 1].start : source.length;
       final value = source.substring(match.end, nextStart).trim();
       if (value.isEmpty) continue;
 
