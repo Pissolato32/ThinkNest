@@ -16,7 +16,8 @@ class _ProjectRepository implements ProjectRepository {
   ProjectDna dna;
 
   @override
-  Future<Project?> getById(String id) async => project.id == id ? project : null;
+  Future<Project?> getById(String id) async =>
+      project.id == id ? project : null;
 
   @override
   Stream<List<Project>> watchAll() => Stream.value([project]);
