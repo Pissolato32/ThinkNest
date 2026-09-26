@@ -17,7 +17,7 @@ class _WidgetRepository implements ProjectRepository {
 
   @override
   Future<Project?> getById(String id) async =>
-      projects.where((item) => item.id == id).firstOrNull;
+      projects.where((item) => item.id == id).isEmpty ? null : projects.firstWhere((item) => item.id == id);
 
   @override
   Stream<List<Project>> watchAll() async* {
