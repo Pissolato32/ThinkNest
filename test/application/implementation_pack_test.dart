@@ -15,14 +15,16 @@ import 'package:thinknest/core/domain/project/project_snapshot.dart';
 void main() {
   final now = DateTime.utc(2026, 1, 1);
 
-  test('builds a hashed zip implementation pack from approved artifacts', () async {
-    final project = Project(
-      id: 'p1',
+  test(
+    'builds a hashed zip implementation pack from approved artifacts',
+    () async {
+      final project = Project(
+        id: 'p1',
       title: 'ThinkNest Demo',
       createdAt: now,
       updatedAt: now,
-    );
-    final dna = ProjectDna(
+      );
+      final dna = ProjectDna(
       projectId: 'p1',
       version: 4,
       updatedAt: now,
