@@ -5,6 +5,7 @@ import 'package:drift/drift.dart';
 import '../../domain/project/project.dart' as domain;
 import '../../domain/project/project_dna.dart';
 import '../../domain/project/project_repository.dart';
+import '../../domain/project/project_snapshot.dart';
 import '../database/thinknest_database.dart' as db;
 
 class DriftProjectRepository implements ProjectRepository {
@@ -104,6 +105,20 @@ class DriftProjectRepository implements ProjectRepository {
           version: Value(dna.version),
           dnaJson: jsonEncode(dna.toJson()),
           updatedAt: dna.updatedAt,
+        ),
+      );
+
+  @override
+  Future<void> createSnapshot(ProjectSnapshot snapshot) =>
+      _database.insertSnapshot(
+        db.ProjectSnapshotsCompanion.insert(
+          id: snapshot.id,
+          projectId: snapshot.projectId,
+          projectVersion: snapshot.projectVersion,
+          createdAt: snapshot.createdAt,
+          reason: snapshot.reason,
+          projectJson: snapshot.projectJson,
+          dnaJson: snapshot.dnaJson,
         ),
       );
 
