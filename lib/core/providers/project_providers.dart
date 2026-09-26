@@ -3,6 +3,8 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../application/conversation/send_message.dart';
 import '../application/document/change_document_status.dart';
 import '../application/document/generate_document.dart';
+import '../application/export/build_implementation_pack.dart';
+import '../application/export/share_implementation_pack.dart';
 import '../application/project/create_project.dart';
 import '../application/readiness/evaluate_readiness.dart';
 import '../domain/ai/ai_provider.dart';
@@ -50,6 +52,19 @@ final documentsProvider = StreamProvider.family<List<Document>, String>(
     return ref.watch(documentRepositoryProvider).watchByProject(projectId);
   },
 );
+
+final buildImplementationPackProvider =
+    Provider<BuildImplementationPack>((ref) {
+  return BuildImplementationPack(
+    ref.watch(projectRepositoryProvider),
+    ref.watch(documentRepositoryProvider),
+  );
+});
+
+final shareImplementationPackProvider =
+    Provider<ShareImplementationPack>((ref) {
+  return ShareImplementationPack();
+});
 
 final evaluateReadinessProvider = Provider<EvaluateReadiness>((ref) {
   return EvaluateReadiness(
