@@ -76,7 +76,9 @@ class _DocumentsScreenState extends ConsumerState<DocumentsScreen> {
     final documents = ref.watch(documentsProvider(widget.projectId));
 
     return Scaffold(
-      appBar: AppBar(title: Text('Documentos — ${widget.title}')),
+      appBar: AppBar(
+        title: Text('Documentos — ${widget.title}'),
+      ),
       body: Padding(
         padding: const EdgeInsets.all(16),
         child: Column(
