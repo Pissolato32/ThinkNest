@@ -66,7 +66,8 @@ class DriftProjectRepository implements ProjectRepository {
 
   @override
   Future<void> delete(String id) =>
-      (_database.delete(_database.projects)..where((row) => row.id.equals(id))).go();
+      (_database.delete(_database.projects)..where((row) => row.id.equals(id)))
+          .go();
 
   @override
   Future<ProjectDna?> getDna(String projectId) async {
