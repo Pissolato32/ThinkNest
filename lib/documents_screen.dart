@@ -122,8 +122,8 @@ class _DocumentsScreenState extends ConsumerState<DocumentsScreen> {
                       return ListTile(
                         title: Text(document.title),
                         subtitle: Text(
-                          'v${document.version} • DNA v${document.dnaVersion} • '
-                              '${document.status.name}',
+                          'v${document.version} • DNA v${document.dnaVersion} '
+                              '• ${document.status.name}',
                         ),
                         trailing: document.status == DocumentStatus.archived
                             ? null
