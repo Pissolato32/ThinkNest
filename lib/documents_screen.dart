@@ -85,8 +85,9 @@ class _DocumentsScreenState extends ConsumerState<DocumentsScreen> {
               children: [
                 Expanded(
                   child: FilledButton.icon(
-                    onPressed:
-                        _generating ? null : () => _generate(DocumentType.prd),
+                    onPressed: _generating
+                        ? null
+                        : () => _generate(DocumentType.prd),
                     icon: const Icon(Icons.description_outlined),
                     label: const Text('Gerar PRD'),
                   ),
@@ -123,7 +124,7 @@ class _DocumentsScreenState extends ConsumerState<DocumentsScreen> {
                         title: Text(document.title),
                         subtitle: Text(
                           'v${document.version} • DNA v${document.dnaVersion} '
-                              '• ${document.status.name}',
+                          '• ${document.status.name}',
                         ),
                         trailing: document.status == DocumentStatus.archived
                             ? null
