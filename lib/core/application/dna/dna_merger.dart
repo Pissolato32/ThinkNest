@@ -33,17 +33,18 @@ class DnaMerger {
     for (final inference in inferences) {
       switch (inference.type) {
         case DnaInferenceType.identity:
-          changed |= _put(identity, inference.key, inference.value);
+          changed = _put(identity, inference.key, inference.value) || changed;
         case DnaInferenceType.corePillar:
-          changed |= _put(corePillars, inference.key, inference.value);
+          changed = _put(corePillars, inference.key, inference.value) || changed;
         case DnaInferenceType.technicalConstraint:
-          changed |= _put(technicalConstraints, inference.key, inference.value);
+          changed =
+              _put(technicalConstraints, inference.key, inference.value) || changed;
         case DnaInferenceType.decision:
-          changed |= _mergeDecision(decisions, inference);
+          changed = _mergeDecision(decisions, inference) || changed;
         case DnaInferenceType.uncertainty:
-          changed |= _addUniqueString(uncertainties, inference.value);
+          changed = _addUniqueString(uncertainties, inference.value) || changed;
         case DnaInferenceType.risk:
-          changed |= _addUniqueString(risks, inference.value);
+          changed = _addUniqueString(risks, inference.value) || changed;
       }
     }
 
