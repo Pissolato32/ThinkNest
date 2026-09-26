@@ -113,5 +113,3 @@ Uma falha posterior não deve ser inferida enquanto uma etapa anterior ainda blo
 - [ ] novos comportamentos possuem testes
 - [ ] documentação e contratos continuam alinhados
 - [ ] CI verde antes de avançar para a próxima fatia
-
-> Validation note: P0.5 must pass the complete CI sequence before being considered complete.
