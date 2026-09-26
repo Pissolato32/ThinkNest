@@ -50,7 +50,7 @@ class AiTasks extends Table {
   TextColumn get projectId =>
       text().references(Projects, #id, onDelete: KeyAction.cascade)();
   TextColumn get status => text().withDefault(const Constant('PENDING'))();
-  TextColumn get payloadJson => text()();
+  TextColumn get payloadJson => text().withDefault(const Constant('{}'))();
   IntColumn get attempts => integer().withDefault(const Constant(0))();
   TextColumn get lastError => text().nullable()();
   DateTimeColumn get createdAt => dateTime()();
