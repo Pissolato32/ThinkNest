@@ -4,6 +4,7 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:thinknest/core/domain/project/project.dart';
 import 'package:thinknest/core/domain/project/project_dna.dart';
 import 'package:thinknest/core/domain/project/project_repository.dart';
+import 'package:thinknest/core/domain/project/project_snapshot.dart';
 import 'package:thinknest/core/providers/project_providers.dart';
 import 'package:thinknest/main.dart';
 
@@ -34,6 +35,9 @@ class _WidgetRepository implements ProjectRepository {
 
   @override
   Future<ProjectDna?> getDna(String projectId) async => null;
+
+  @override
+  Future<void> createSnapshot(ProjectSnapshot snapshot) async {}
 
   @override
   Future<void> saveDna(ProjectDna dna) async {}

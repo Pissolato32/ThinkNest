@@ -4,7 +4,7 @@ import 'package:thinknest/core/domain/project/project.dart';
 import 'package:thinknest/core/domain/project/project_dna.dart';
 import 'package:thinknest/core/domain/project/project_snapshot.dart';
 import 'package:thinknest/core/infrastructure/database/thinknest_database.dart'
-    hide Project;
+    hide Project, ProjectSnapshot;
 import 'package:thinknest/core/infrastructure/project/drift_project_repository.dart';
 
 void main() {

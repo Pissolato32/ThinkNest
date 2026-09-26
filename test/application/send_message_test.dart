@@ -9,6 +9,7 @@ import 'package:thinknest/core/domain/conversation/conversation_repository.dart'
 import 'package:thinknest/core/domain/project/project.dart';
 import 'package:thinknest/core/domain/project/project_dna.dart';
 import 'package:thinknest/core/domain/project/project_repository.dart';
+import 'package:thinknest/core/domain/project/project_snapshot.dart';
 
 class FakeConversationRepository implements ConversationRepository {
   final List<ConversationMessage> messages = [];
@@ -48,6 +49,9 @@ class FakeProjectRepository implements ProjectRepository {
 
   @override
   Future<ProjectDna?> getDna(String projectId) async => dna;
+
+  @override
+  Future<void> createSnapshot(ProjectSnapshot snapshot) async {}
 
   @override
   Future<void> saveDna(ProjectDna dna) async {}
