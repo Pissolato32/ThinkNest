@@ -24,6 +24,8 @@ The P0.1 source shell is now present.
 ```bash
 flutter create . --platforms=android,web
 flutter pub get
+dart run build_runner build --delete-conflicting-outputs
+dart format --set-exit-if-changed lib test
 flutter analyze
 flutter test
 flutter run
@@ -34,3 +36,7 @@ flutter run
 ## Documentation
 
 See [docs/README.md](docs/README.md) for the canonical documentation hub.
+
+## CI e padrões de código
+
+As regras obrigatórias de Dart/Flutter, formatação, análise, Drift, testes e diagnóstico de falhas estão em [`docs/architecture/DART_FLUTTER_CI_STANDARDS.md`](docs/architecture/DART_FLUTTER_CI_STANDARDS.md).
