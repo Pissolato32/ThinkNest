@@ -64,9 +64,9 @@ class _DocumentsScreenState extends ConsumerState<DocumentsScreen> {
       );
     } catch (error) {
       if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Transição inválida: $error')),
-        );
+        ScaffoldMessenger.of(
+          context,
+        ).showSnackBar(SnackBar(content: Text('Transição inválida: $error')));
       }
     }
   }
