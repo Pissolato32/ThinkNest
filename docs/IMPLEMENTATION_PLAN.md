@@ -1,6 +1,6 @@
 # ThinkNest — Plano de Implementação
 
-**Status:** EXECUÇÃO P0  
+**Status:** EXECUÇÃO P0 — CI ESTABILIZADO  
 **Issue principal:** #5  
 **Fonte normativa:** `docs/`
 
@@ -18,9 +18,9 @@ A implementação deve preservar os princípios da Constituição: offline-first
 - [ ] Criar aplicação Flutter/Dart.
 - [ ] Configurar Riverpod.
 - [ ] Criar estrutura DDD.
-- [ ] Configurar análise estática e testes.
+- [x] Configurar análise estática e testes.
 - [ ] Corrigir documentação legada que ainda referencia React Native/WatermelonDB/Jest/Detox/RxJS.
-- [ ] Garantir que `flutter analyze` e `flutter test` possam rodar.
+- [x] Garantir que `flutter analyze` e `flutter test` rodem no GitHub Actions.
 
 **Saída:** aplicativo Flutter mínimo executável.
 
@@ -90,6 +90,29 @@ A implementação deve preservar os princípios da Constituição: offline-first
 
 **Saída:** artefato consumível por ferramentas de execução.
 
+## Quality Gate — obrigatório antes de avançar uma fatia
+
+Nenhuma nova fatia P0 pode ser iniciada enquanto o CI do commit-base não estiver verde.
+
+O pipeline oficial deve, nesta ordem:
+1. fixar a versão do Flutter usada no CI;
+2. gerar a scaffolding de plataforma necessária ao repositório;
+3. instalar dependências com `flutter pub get`;
+4. gerar código Drift com `build_runner`;
+5. verificar formatação com `dart format --set-exit-if-changed`;
+6. executar `flutter analyze`;
+7. executar `flutter test`;
+8. preservar diagnósticos como artifact somente quando houver falha;
+9. cancelar execuções antigas da mesma branch quando houver um commit mais novo.
+
+Regras de implementação:
+- não avançar para a próxima etapa após CI vermelho;
+- não remover uma barreira do CI apenas para obter build verde;
+- corrigir a causa no código/configuração e executar novamente;
+- manter versões de ferramentas determinísticas sempre que possível;
+- cada nova camada deve entrar acompanhada de testes antes de integrar a próxima camada;
+- em falhas de CI, capturar a saída da etapa que falhou antes de fazer novas alterações.
+
 ## P1 — Plataforma
 - Supabase/Auth.
 - sincronização.
@@ -97,7 +120,7 @@ A implementação deve preservar os princípios da Constituição: offline-first
 - voz.
 - segurança avançada.
 - observabilidade.
-- CI/CD.
+- CI/CD avançado (deploy, ambientes e promoção entre ambientes).
 
 ## P2 — Expansão
 - especialistas avançados;
