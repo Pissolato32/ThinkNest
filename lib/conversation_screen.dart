@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import 'core/domain/conversation/conversation_message.dart';
+import 'documents_screen.dart';
 import 'core/providers/project_providers.dart';
 
 class ConversationScreen extends ConsumerStatefulWidget {
@@ -55,7 +56,23 @@ class _ConversationScreenState extends ConsumerState<ConversationScreen> {
       conversationMessagesProvider(widget.projectId),
     );
     return Scaffold(
-      appBar: AppBar(title: Text(widget.title)),
+      appBar: AppBar(
+        title: Text(widget.title),
+        actions: [
+          IconButton(
+            tooltip: 'Documentos',
+            onPressed: () => Navigator.of(context).push(
+              MaterialPageRoute<void>(
+                builder: (_) => DocumentsScreen(
+                  projectId: widget.projectId,
+                  title: widget.title,
+                ),
+              ),
+            ),
+            icon: const Icon(Icons.description_outlined),
+          ),
+        ],
+      ),
       body: Column(
         children: [
           Expanded(
