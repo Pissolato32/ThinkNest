@@ -20,67 +20,68 @@ void main() {
     () async {
       final project = Project(
         id: 'p1',
-      title: 'ThinkNest Demo',
-      createdAt: now,
-      updatedAt: now,
+        title: 'ThinkNest Demo',
+        createdAt: now,
+        updatedAt: now,
       );
       final dna = ProjectDna(
-      projectId: 'p1',
-      version: 4,
-      updatedAt: now,
-      identity: const {'title': 'ThinkNest Demo'},
-      corePillars: const {
-        'problem_statement': 'Ideas need structure.',
-        'target_audience': ['Creators'],
-        'value_proposition': 'Turn ideas into specifications.',
-      },
-      technicalConstraints: const {
-        'preferred_stack': ['Flutter', 'Dart'],
-      },
-      keyDecisions: const [
-        {'topic': 'Architecture', 'decision': 'Use DDD.'},
-      ],
-    );
-    final prd = _document(now, DocumentType.prd, '# PRD');
-    final architecture = _document(
-      now,
-      DocumentType.architecture,
-      '# Architecture',
-    );
-
-    final builder = BuildImplementationPack(
-      _FakeProjectRepository(project, dna),
-      _FakeDocumentRepository([prd, architecture]),
-      clock: () => now,
-    );
-
-    final pack = await builder(projectId: 'p1', profile: ExportProfile.cursor);
-
-    expect(pack.exportId, isNotEmpty);
-    expect(pack.version, 1);
-    expect(pack.profile, ExportProfile.cursor);
-    expect(pack.files.map((file) => file.path), contains('PROJECT_DNA.json'));
-    expect(pack.files.map((file) => file.path), contains('.cursorrules'));
-    expect(pack.files.map((file) => file.path), contains('DECISIONS.json'));
-
-    for (final file in pack.files) {
-      expect(
-        file.sha256,
-        sha256.convert(utf8.encode(file.content)).toString(),
+        projectId: 'p1',
+        version: 4,
+        updatedAt: now,
+        identity: const {'title': 'ThinkNest Demo'},
+        corePillars: const {
+          'problem_statement': 'Ideas need structure.',
+          'target_audience': ['Creators'],
+          'value_proposition': 'Turn ideas into specifications.',
+        },
+        technicalConstraints: const {
+          'preferred_stack': ['Flutter', 'Dart'],
+        },
+        keyDecisions: const [
+          {'topic': 'Architecture', 'decision': 'Use DDD.'},
+        ],
       );
-    }
+      final prd = _document(now, DocumentType.prd, '# PRD');
+      final architecture = _document(
+        now,
+        DocumentType.architecture,
+        '# Architecture',
+      );
 
-    final manifest = jsonDecode(pack.manifest) as Map<String, dynamic>;
-    expect(manifest['export_id'], pack.exportId);
-    expect(manifest['source']['dna_version'], 4);
+      final builder = BuildImplementationPack(
+        _FakeProjectRepository(project, dna),
+        _FakeDocumentRepository([prd, architecture]),
+        clock: () => now,
+      );
 
-    final archive = ZipDecoder().decodeBytes(pack.zipBytes);
-    final names = archive.files.map((file) => file.name).toSet();
-    expect(names, contains('MANIFEST.json'));
-    expect(names, contains('PROJECT_DNA.json'));
-    expect(names, contains('docs/PRD.md'));
-    expect(names, contains('docs/ARCHITECTURE.md'));
-  });
+      final pack = await builder(projectId: 'p1', profile: ExportProfile.cursor);
+
+      expect(pack.exportId, isNotEmpty);
+      expect(pack.version, 1);
+      expect(pack.profile, ExportProfile.cursor);
+      expect(pack.files.map((file) => file.path), contains('PROJECT_DNA.json'));
+      expect(pack.files.map((file) => file.path), contains('.cursorrules'));
+      expect(pack.files.map((file) => file.path), contains('DECISIONS.json'));
+
+      for (final file in pack.files) {
+        expect(
+          file.sha256,
+          sha256.convert(utf8.encode(file.content)).toString(),
+        );
+      }
+
+      final manifest = jsonDecode(pack.manifest) as Map<String, dynamic>;
+      expect(manifest['export_id'], pack.exportId);
+      expect(manifest['source']['dna_version'], 4);
+
+      final archive = ZipDecoder().decodeBytes(pack.zipBytes);
+      final names = archive.files.map((file) => file.name).toSet();
+      expect(names, contains('MANIFEST.json'));
+      expect(names, contains('PROJECT_DNA.json'));
+      expect(names, contains('docs/PRD.md'));
+      expect(names, contains('docs/ARCHITECTURE.md'));
+    },
+  );
 
   test('rejects export until both required documents are approved', () async {
     final project = Project(
