@@ -5,13 +5,18 @@ import 'core/domain/conversation/conversation_message.dart';
 import 'core/providers/project_providers.dart';
 
 class ConversationScreen extends ConsumerStatefulWidget {
-  const ConversationScreen({required this.projectId, required this.title, super.key});
+  const ConversationScreen({
+    required this.projectId,
+    required this.title,
+    super.key,
+  });
 
   final String projectId;
   final String title;
 
   @override
-  ConsumerState<ConversationScreen> createState() => _ConversationScreenState();
+  ConsumerState<ConversationScreen> createState() =>
+      _ConversationScreenState();
 }
 
 class _ConversationScreenState extends ConsumerState<ConversationScreen> {
@@ -63,9 +68,12 @@ class _ConversationScreenState extends ConsumerState<ConversationScreen> {
                 itemCount: items.length,
                 itemBuilder: (context, index) {
                   final message = items[index];
-                  final isUser = message.role == ConversationMessageRole.user;
+                  final isUser =
+                      message.role == ConversationMessageRole.user;
                   return Align(
-                    alignment: isUser ? Alignment.centerRight : Alignment.centerLeft,
+                    alignment: isUser
+                        ? Alignment.centerRight
+                        : Alignment.centerLeft,
                     child: Card(
                       child: Padding(
                         padding: const EdgeInsets.all(12),
@@ -116,6 +124,9 @@ class _ConversationScreenState extends ConsumerState<ConversationScreen> {
   }
 }
 
-final conversationMessagesProvider = StreamProvider.family<List<ConversationMessage>, String>((ref, projectId) {
-  return ref.watch(conversationRepositoryProvider).watchMessages(projectId);
-});
+final conversationMessagesProvider =
+    StreamProvider.family<List<ConversationMessage>, String>(
+  (ref, projectId) {
+    return ref.watch(conversationRepositoryProvider).watchMessages(projectId);
+  },
+);
