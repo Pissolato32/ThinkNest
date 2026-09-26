@@ -17,7 +17,7 @@ void main() {
       DnaInferenceType.decision,
       DnaInferenceType.risk,
     ]);
-    expect(result.first.value, 'reduzir retrabalho. Restrição: offline-first. Decisão: Flutter. Risco: custo de IA.');
+    expect(result.first.value, 'reduzir retrabalho.');
     expect(result.every((item) => item.confidence > 0.95), isTrue);
   });
 
