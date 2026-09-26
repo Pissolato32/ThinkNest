@@ -19,7 +19,7 @@ class DriftAiTaskRepository implements AiTaskRepository {
               attempts: Value(task.attempts),
               lastError: Value(task.lastError),
               createdAt: task.createdAt,
-              payloadJson: payloadJson,
+              payloadJson: Value(payloadJson),
             ),
           );
 
