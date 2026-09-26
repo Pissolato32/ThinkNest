@@ -15,8 +15,7 @@ class ConversationScreen extends ConsumerStatefulWidget {
   final String title;
 
   @override
-  ConsumerState<ConversationScreen> createState() =>
-      _ConversationScreenState();
+  ConsumerState<ConversationScreen> createState() => _ConversationScreenState();
 }
 
 class _ConversationScreenState extends ConsumerState<ConversationScreen> {
@@ -68,12 +67,10 @@ class _ConversationScreenState extends ConsumerState<ConversationScreen> {
                 itemCount: items.length,
                 itemBuilder: (context, index) {
                   final message = items[index];
-                  final isUser =
-                      message.role == ConversationMessageRole.user;
+                  final isUser = message.role == ConversationMessageRole.user;
                   return Align(
-                    alignment: isUser
-                        ? Alignment.centerRight
-                        : Alignment.centerLeft,
+                    alignment:
+                        isUser ? Alignment.centerRight : Alignment.centerLeft,
                     child: Card(
                       child: Padding(
                         padding: const EdgeInsets.all(12),
