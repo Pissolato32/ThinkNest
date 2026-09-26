@@ -63,14 +63,17 @@ A implementação deve preservar os princípios da Constituição: offline-first
 **Saída:** conversa real preservando o projeto como contexto, sem acoplamento do domínio a um fornecedor.
 
 ### P0.5 — DNA Engine
-- [ ] Extração de fatos.
-- [ ] decisões, ambiguidades, restrições e riscos.
-- [ ] merge/deduplicação.
-- [ ] confidence gate.
-- [ ] sugestão/aprovação humana.
-- [ ] snapshot após mutação.
+- [x] Contrato provider-neutral para extração de fatos.
+- [x] Extração determinística mínima de fatos explicitamente marcados pelo usuário.
+- [x] decisões, ambiguidades, restrições e riscos como inferências estruturadas.
+- [x] merge/deduplicação.
+- [x] confidence gate: >95% automático, 80–95% sugestão, <80% esclarecimento.
+- [x] sugestão/aprovação humana antes de aplicar inferências intermediárias.
+- [x] snapshot imutável após mutação do DNA.
 
-**Saída:** conversa gera conhecimento estruturado, não apenas histórico.
+**Saída:** conversa pode gerar conhecimento estruturado, não apenas histórico.
+
+**Limite consciente desta fatia:** o extrator inicial é determinístico e provider-neutral; a extração semântica via IA fica desacoplada para a próxima evolução do adapter/orquestrador.
 
 ### P0.6 — Documents
 - [ ] PRD.
