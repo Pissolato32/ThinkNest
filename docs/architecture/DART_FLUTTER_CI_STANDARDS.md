@@ -13,7 +13,7 @@ Executar localmente, na mesma ordem do CI:
 ```bash
 flutter create . --platforms=android,web --no-pub
 flutter pub get
-dart run build_runner build --delete-conflicting-outputs
+dart run build_runner build
 dart format --set-exit-if-changed lib test
 flutter analyze
 flutter test
@@ -57,7 +57,7 @@ Se o CI informar que arquivos foram `Changed` ou que `Formatted N files (M chang
 Sempre que tabelas, companions, colunas ou queries forem alterados:
 
 ```bash
-dart run build_runner build --delete-conflicting-outputs
+dart run build_runner build
 flutter analyze
 flutter test
 ```
