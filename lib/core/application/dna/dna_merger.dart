@@ -40,7 +40,7 @@ class DnaMerger {
         case DnaInferenceType.technicalConstraint:
           changed =
               _put(technicalConstraints, inference.key, inference.value) ||
-              changed;
+                  changed;
         case DnaInferenceType.decision:
           changed = _mergeDecision(decisions, inference) || changed;
         case DnaInferenceType.uncertainty:
