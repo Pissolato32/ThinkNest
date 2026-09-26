@@ -35,7 +35,7 @@ jobs:
         run: dart format lib test
 
       - name: Upload formatted source for diagnostics
-        if: failure()
+        if: always()
         uses: actions/upload-artifact@v4
         with:
           name: formatted-source-${{ github.run_id }}
