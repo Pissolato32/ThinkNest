@@ -8,6 +8,7 @@ class ProjectDna {
     this.technicalConstraints = const <String, Object?>{},
     this.keyDecisions = const <Map<String, Object?>>[],
     this.openUncertainties = const <String>[],
+    this.knownRisks = const <String>[],
     this.specialistState = const <String, Object?>{},
   });
 
@@ -19,6 +20,7 @@ class ProjectDna {
   final Map<String, Object?> technicalConstraints;
   final List<Map<String, Object?>> keyDecisions;
   final List<String> openUncertainties;
+  final List<String> knownRisks;
   final Map<String, Object?> specialistState;
 
   ProjectDna copyWith({
@@ -29,6 +31,7 @@ class ProjectDna {
     Map<String, Object?>? technicalConstraints,
     List<Map<String, Object?>>? keyDecisions,
     List<String>? openUncertainties,
+    List<String>? knownRisks,
     Map<String, Object?>? specialistState,
   }) {
     return ProjectDna(
@@ -40,6 +43,7 @@ class ProjectDna {
       technicalConstraints: technicalConstraints ?? this.technicalConstraints,
       keyDecisions: keyDecisions ?? this.keyDecisions,
       openUncertainties: openUncertainties ?? this.openUncertainties,
+      knownRisks: knownRisks ?? this.knownRisks,
       specialistState: specialistState ?? this.specialistState,
     );
   }
@@ -53,6 +57,7 @@ class ProjectDna {
         'technical_constraints': technicalConstraints,
         'key_decisions': keyDecisions,
         'open_uncertainties': openUncertainties,
+        'known_risks': knownRisks,
         'specialist_state': specialistState,
       };
 }
