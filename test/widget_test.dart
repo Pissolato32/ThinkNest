@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_test/flutter_test.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:flutter_test/flutter_test.dart';
 import 'package:thinknest/core/domain/project/project.dart';
 import 'package:thinknest/core/domain/project/project_dna.dart';
 import 'package:thinknest/core/domain/project/project_repository.dart';
@@ -17,7 +17,9 @@ class _WidgetRepository implements ProjectRepository {
 
   @override
   Future<Project?> getById(String id) async =>
-      projects.where((item) => item.id == id).isEmpty ? null : projects.firstWhere((item) => item.id == id);
+      projects.where((item) => item.id == id).isEmpty
+          ? null
+          : projects.firstWhere((item) => item.id == id);
 
   @override
   Stream<List<Project>> watchAll() async* {
@@ -38,7 +40,8 @@ class _WidgetRepository implements ProjectRepository {
 }
 
 void main() {
-  testWidgets('captures an idea and shows it in the project list', (tester) async {
+  testWidgets('captures an idea and shows it in the project list',
+      (tester) async {
     final repository = _WidgetRepository();
 
     await tester.pumpWidget(
