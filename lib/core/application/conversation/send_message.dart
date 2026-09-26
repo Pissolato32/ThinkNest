@@ -1,6 +1,6 @@
-import 'package:uuid/uuid.dart';
-
 import 'dart:convert';
+
+import 'package:uuid/uuid.dart';
 
 import '../../domain/ai/ai_provider.dart';
 import '../../domain/ai/ai_task.dart';
@@ -30,7 +30,11 @@ class SendMessage {
   }) async {
     final normalized = content.trim();
     if (normalized.isEmpty) {
-      throw ArgumentError.value(content, 'content', 'A mensagem não pode estar vazia.');
+      throw ArgumentError.value(
+        content,
+        'content',
+        'A mensagem não pode estar vazia.',
+      );
     }
     final dna = await _projectRepository.getDna(projectId);
     if (dna == null) throw StateError('Project DNA não encontrado.');
@@ -45,7 +49,11 @@ class SendMessage {
     await _conversationRepository.addMessage(userMessage);
 
     final messages = await _conversationRepository.watchMessages(projectId).first;
-    final request = AiRequest(projectId: projectId, dna: dna, messages: messages);
+    final request = AiRequest(
+      projectId: projectId,
+      dna: dna,
+      messages: messages,
+    );
     final task = AiTask(
       id: _uuid.v4(),
       projectId: projectId,
