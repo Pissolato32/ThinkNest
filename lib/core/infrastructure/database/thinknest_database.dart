@@ -53,13 +53,12 @@ class ThinkNestDatabase extends _$ThinkNestDatabase {
   Future<Project> findProject(String id) =>
       (select(projects)..where((row) => row.id.equals(id))).getSingle();
 
-  Stream<List<Project>> watchProjects() =>
-      (select(projects)
-            ..where((row) => row.isArchived.equals(false))
-            ..orderBy([
-              (row) => OrderingTerm.desc(row.updatedAt),
-            ]))
-          .watch();
+  Stream<List<Project>> watchProjects() => (select(projects)
+        ..where((row) => row.isArchived.equals(false))
+        ..orderBy([
+          (row) => OrderingTerm.desc(row.updatedAt),
+        ]))
+      .watch();
 
   Future<void> upsertProject(ProjectsCompanion entry) =>
       into(projects).insertOnConflictUpdate(entry);
