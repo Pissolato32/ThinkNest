@@ -128,7 +128,7 @@ Document _document(
   DocumentStatus status = DocumentStatus.approved,
 }) {
   return Document(
-    id: type.name + '-1',
+    id: '${type.name}-1',
     projectId: 'p1',
     type: type,
     version: 1,
