@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import 'core/providers/project_providers.dart';
+import 'conversation_screen.dart';
 
 void main() {
   runApp(const ProviderScope(child: ThinkNestApp()));
@@ -142,6 +143,15 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
                           subtitle: Text(
                             project.maturity.name,
                             style: Theme.of(context).textTheme.bodySmall,
+                          ),
+                          trailing: const Icon(Icons.chat_bubble_outline),
+                          onTap: () => Navigator.of(context).push(
+                            MaterialPageRoute<void>(
+                              builder: (_) => ConversationScreen(
+                                projectId: project.id,
+                                title: project.title,
+                              ),
+                            ),
                           ),
                         );
                       },
