@@ -47,8 +47,7 @@ class FakeProjectRepository implements ProjectRepository {
 void main() {
   final now = DateTime.utc(2026, 1, 1);
 
-  FakeProjectRepository repository() =>
-      FakeProjectRepository(
+  FakeProjectRepository repository() => FakeProjectRepository(
         Project(id: 'p1', title: 'Idea', createdAt: now, updatedAt: now),
         ProjectDna(projectId: 'p1', version: 1, updatedAt: now),
       );
