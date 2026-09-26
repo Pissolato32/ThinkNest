@@ -178,10 +178,19 @@ void main() {
       DocumentStatus.userReviewed,
     );
 
+    await ChangeDocumentStatus(documents)(
+      documentId: 'd1',
+      nextStatus: DocumentStatus.approved,
+    );
+    expect(
+      (await documents.getById('d1'))?.status,
+      DocumentStatus.approved,
+    );
+
     await expectLater(
       ChangeDocumentStatus(documents)(
         documentId: 'd1',
-        nextStatus: DocumentStatus.approved,
+        nextStatus: DocumentStatus.generated,
       ),
       throwsStateError,
     );
