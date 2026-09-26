@@ -54,7 +54,8 @@ void main() {
         clock: () => now,
       );
 
-      final pack = await builder(projectId: 'p1', profile: ExportProfile.cursor);
+      final pack =
+          await builder(projectId: 'p1', profile: ExportProfile.cursor);
 
       expect(pack.exportId, isNotEmpty);
       expect(pack.version, 1);
@@ -147,7 +148,8 @@ class _FakeProjectRepository implements ProjectRepository {
   final ProjectDna dna;
 
   @override
-  Future<Project?> getById(String id) async => id == project.id ? project : null;
+  Future<Project?> getById(String id) async =>
+      id == project.id ? project : null;
 
   @override
   Stream<List<Project>> watchAll() => Stream.value([project]);
