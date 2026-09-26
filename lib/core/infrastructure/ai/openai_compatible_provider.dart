@@ -64,14 +64,17 @@ class OpenAiCompatibleProvider implements AiProvider {
     if (response.statusCode < 200 || response.statusCode >= 300) {
       throw StateError('AI provider returned HTTP ${response.statusCode}.');
     }
-    await for (final line in response.stream.transform(utf8.decoder).transform(const LineSplitter())) {
+    await for (final line in response.stream
+        .transform(utf8.decoder)
+        .transform(const LineSplitter())) {
       if (!line.startsWith('data:')) continue;
       final payload = line.substring(5).trim();
       if (payload == '[DONE]') break;
       final json = jsonDecode(payload) as Map<String, dynamic>;
       final choices = json['choices'] as List<dynamic>? ?? const [];
       if (choices.isEmpty) continue;
-      final delta = (choices.first as Map<String, dynamic>)['delta'] as Map<String, dynamic>?;
+      final delta =
+          (choices.first as Map<String, dynamic>)['delta'] as Map<String, dynamic>?;
       final content = delta?['content'] as String?;
       if (content != null && content.isNotEmpty) yield content;
     }
