@@ -20,6 +20,7 @@ class DocumentsScreen extends ConsumerStatefulWidget {
 
 class _DocumentsScreenState extends ConsumerState<DocumentsScreen> {
   bool _generating = false;
+  bool _exporting = false;
 
   Future<void> _generate(DocumentType type) async {
     if (_generating) return;
@@ -44,6 +45,25 @@ class _DocumentsScreenState extends ConsumerState<DocumentsScreen> {
       }
     } finally {
       if (mounted) setState(() => _generating = false);
+    }
+  }
+
+  Future<void> _exportPack() async {
+    if (_exporting) return;
+    setState(() => _exporting = true);
+    try {
+      final pack = await ref.read(buildImplementationPackProvider)(
+        projectId: widget.projectId,
+      );
+      await ref.read(shareImplementationPackProvider)(pack);
+    } catch (error) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('Não foi possível exportar: $error')),
+        );
+      }
+    } finally {
+      if (mounted) setState(() => _exporting = false);
     }
   }
 
@@ -102,6 +122,21 @@ class _DocumentsScreenState extends ConsumerState<DocumentsScreen> {
                   ),
                 ),
               ],
+            ),
+            const SizedBox(height: 12),
+            Align(
+              alignment: Alignment.centerRight,
+              child: OutlinedButton.icon(
+                onPressed: _exporting ? null : _exportPack,
+                icon: _exporting
+                    ? const SizedBox(
+                        width: 18,
+                        height: 18,
+                        child: CircularProgressIndicator(strokeWidth: 2),
+                      )
+                    : const Icon(Icons.archive_outlined),
+                label: const Text('Exportar Implementation Pack'),
+              ),
             ),
             const SizedBox(height: 16),
             Expanded(
