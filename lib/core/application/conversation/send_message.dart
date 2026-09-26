@@ -48,7 +48,8 @@ class SendMessage {
     );
     await _conversationRepository.addMessage(userMessage);
 
-    final messages = await _conversationRepository.watchMessages(projectId).first;
+    final messages =
+        await _conversationRepository.watchMessages(projectId).first;
     final request = AiRequest(
       projectId: projectId,
       dna: dna,
