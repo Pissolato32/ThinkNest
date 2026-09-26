@@ -50,6 +50,7 @@ class AiTasks extends Table {
   TextColumn get projectId =>
       text().references(Projects, #id, onDelete: KeyAction.cascade)();
   TextColumn get status => text().withDefault(const Constant('PENDING'))();
+  TextColumn get payloadJson => text()();
   IntColumn get attempts => integer().withDefault(const Constant(0))();
   TextColumn get lastError => text().nullable()();
   DateTimeColumn get createdAt => dateTime()();
@@ -78,7 +79,7 @@ class ThinkNestDatabase extends _$ThinkNestDatabase {
       : super(executor ?? driftDatabase(name: 'thinknest'));
 
   @override
-  int get schemaVersion => 2;
+  int get schemaVersion => 3;
 
   @override
   MigrationStrategy get migration => MigrationStrategy(
@@ -87,6 +88,9 @@ class ThinkNestDatabase extends _$ThinkNestDatabase {
           if (from < 2) {
             await m.createTable(conversationMessages);
             await m.createTable(aiTasks);
+          }
+          if (from < 3) {
+            await m.addColumn(aiTasks, aiTasks.payloadJson);
           }
         },
       );
