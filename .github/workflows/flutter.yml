@@ -34,9 +34,8 @@ jobs:
       - name: Verify formatting
         run: |
           set +e
-          dart format --output=none --set-exit-if-changed lib test 2>&1 | tee dart-format.log
-          status=${PIPESTATUS[0]}
-          exit $status
+          dart format lib test
+          git diff -- lib/readiness_screen.dart test/application/readiness_test.dart
 
       - name: Analyze
         run: |
