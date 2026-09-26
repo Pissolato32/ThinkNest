@@ -1,6 +1,6 @@
 import 'package:flutter_test/flutter_test.dart';
 import 'package:thinknest/core/application/dna/rule_based_dna_extractor.dart';
-import 'package:thinknest/core/domain/dna/dna_inference.dart';
+import 'package:thinknest/core/domain/project/dna/dna_inference.dart';
 
 void main() {
   test('extracts explicitly marked user facts', () {
