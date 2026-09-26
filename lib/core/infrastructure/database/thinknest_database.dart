@@ -1,4 +1,5 @@
 import 'package:drift/drift.dart';
+import 'package:drift_flutter/drift_flutter.dart';
 
 part 'thinknest_database.g.dart';
 
@@ -45,7 +46,8 @@ class ProjectSnapshots extends Table {
 
 @DriftDatabase(tables: [Projects, ProjectDnaRows, ProjectSnapshots])
 class ThinkNestDatabase extends _$ThinkNestDatabase {
-  ThinkNestDatabase(super.e);
+  ThinkNestDatabase([QueryExecutor? executor])
+      : super(executor ?? driftDatabase(name: 'thinknest'));
 
   @override
   int get schemaVersion => 1;
