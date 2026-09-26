@@ -56,8 +56,9 @@ class _DocumentRepository implements DocumentRepository {
   }
 
   @override
-  Stream<List<Document>> watchByProject(String projectId) =>
-      Stream.value(documents.where((item) => item.projectId == projectId).toList());
+  Stream<List<Document>> watchByProject(String projectId) => Stream.value(
+        documents.where((item) => item.projectId == projectId).toList(),
+      );
 
   @override
   Future<List<Document>> getVersions(
@@ -171,7 +172,10 @@ void main() {
       nextStatus: DocumentStatus.userReviewed,
     );
 
-    expect((await documents.getById('d1'))?.status, DocumentStatus.userReviewed);
+    expect(
+      (await documents.getById('d1'))?.status,
+      DocumentStatus.userReviewed,
+    );
 
     expect(
       () => ChangeDocumentStatus(documents)(
@@ -181,4 +185,3 @@ void main() {
       throwsStateError,
     );
   });
-}
