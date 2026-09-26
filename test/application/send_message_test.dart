@@ -6,22 +6,25 @@ import 'package:thinknest/core/domain/ai/ai_task.dart';
 import 'package:thinknest/core/domain/ai/ai_task_repository.dart';
 import 'package:thinknest/core/domain/conversation/conversation_message.dart';
 import 'package:thinknest/core/domain/conversation/conversation_repository.dart';
+import 'package:thinknest/core/domain/project/project.dart';
 import 'package:thinknest/core/domain/project/project_dna.dart';
 import 'package:thinknest/core/domain/project/project_repository.dart';
-import 'package:thinknest/core/domain/project/project.dart';
 
 class FakeConversationRepository implements ConversationRepository {
   final List<ConversationMessage> messages = [];
 
   @override
-  Future<void> addMessage(ConversationMessage message) async => messages.add(message);
+  Future<void> addMessage(ConversationMessage message) async =>
+      messages.add(message);
 
   @override
   Future<void> updateMessage(ConversationMessage message) async {}
 
   @override
   Stream<List<ConversationMessage>> watchMessages(String projectId) async* {
-    yield messages.where((message) => message.projectId == projectId).toList();
+    yield messages
+        .where((message) => message.projectId == projectId)
+        .toList();
   }
 }
 
@@ -58,7 +61,8 @@ class FakeTaskRepository implements AiTaskRepository {
   final List<String> pending = [];
 
   @override
-  Future<void> enqueue(AiTask task, {required String payloadJson}) async => tasks.add(task);
+  Future<void> enqueue(AiTask task, {required String payloadJson}) async =>
+      tasks.add(task);
 
   @override
   Future<void> markCompleted(String id) async => completed.add(id);
@@ -79,43 +83,49 @@ class FakeProvider implements AiProvider {
       );
 
   @override
-  Stream<String> stream(AiRequest request) => Stream.value('Resposta de teste.');
+  Stream<String> stream(AiRequest request) =>
+      Stream.value('Resposta de teste.');
 }
 
 void main() {
-  test('SendMessage persists user and assistant messages and completes task', () async {
-    final conversation = FakeConversationRepository();
-    final tasks = FakeTaskRepository();
-    final dna = ProjectDna(
-      projectId: 'project-1',
-      version: 1,
-      updatedAt: DateTime.utc(2026),
-    );
+  test(
+    'SendMessage persists user and assistant messages and completes task',
+    () async {
+      final conversation = FakeConversationRepository();
+      final tasks = FakeTaskRepository();
+      final dna = ProjectDna(
+        projectId: 'project-1',
+        version: 1,
+        updatedAt: DateTime.utc(2026),
+      );
 
-    final result = await SendMessage(
-      conversation,
-      FakeProjectRepository(dna),
-      FakeProvider(),
-      tasks,
-    )(projectId: 'project-1', content: 'Quero criar um app.');
+      final result = await SendMessage(
+        conversation,
+        FakeProjectRepository(dna),
+        FakeProvider(),
+        tasks,
+      )(projectId: 'project-1', content: 'Quero criar um app.');
 
-    expect(result.role, ConversationMessageRole.assistant);
-    expect(conversation.messages, hasLength(2));
-    expect(tasks.tasks, hasLength(1));
-    expect(tasks.completed, contains(tasks.tasks.single.id));
-  });
+      expect(result.role, ConversationMessageRole.assistant);
+      expect(conversation.messages, hasLength(2));
+      expect(tasks.tasks, hasLength(1));
+      expect(tasks.completed, contains(tasks.tasks.single.id));
+    },
+  );
 
   test('AiProvider exposes a streaming contract', () async {
     final chunks = await FakeProvider()
-        .stream(const AiRequest(
-          projectId: 'project-1',
-          dna: ProjectDna(
+        .stream(
+          const AiRequest(
             projectId: 'project-1',
-            version: 1,
-            updatedAt: DateTime.utc(2026),
+            dna: ProjectDna(
+              projectId: 'project-1',
+              version: 1,
+              updatedAt: DateTime.utc(2026),
+            ),
+            messages: [],
           ),
-          messages: [],
-        ))
+        )
         .toList();
 
     expect(chunks, ['Resposta de teste.']);
