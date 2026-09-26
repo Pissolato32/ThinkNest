@@ -35,8 +35,9 @@ jobs:
         if: always()
         run: |
           cp lib/documents_screen.dart /tmp/documents_screen.dart
-          dart format /tmp/documents_screen.dart >/tmp/formatter-output.log
-          diff -u lib/documents_screen.dart /tmp/documents_screen.dart > formatter-documents.diff || true
+          dart format lib/documents_screen.dart >/tmp/formatter-output.log
+          git diff -- lib/documents_screen.dart > formatter-documents.diff || true
+          cp /tmp/documents_screen.dart lib/documents_screen.dart
           cat /tmp/formatter-output.log
 
       - name: Verify formatting
