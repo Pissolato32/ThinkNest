@@ -19,12 +19,12 @@ See [docs/IMPLEMENTATION_PLAN.md](docs/IMPLEMENTATION_PLAN.md) and issue [#5](ht
 
 ## Local development
 
-The P0.1 source shell is now present.
+The functional Flutter vertical slice now covers Capture → Project → Project DNA → Conversation → Documents → Readiness.
 
 ```bash
 flutter create . --platforms=android,web --no-pub
 flutter pub get
-dart run build_runner build --delete-conflicting-outputs
+dart run build_runner build
 dart format --set-exit-if-changed lib test
 flutter analyze
 flutter test
