@@ -15,7 +15,8 @@ import '../infrastructure/ai/drift_ai_task_repository.dart';
 import '../infrastructure/ai/echo_provider.dart';
 import '../infrastructure/conversation/drift_conversation_repository.dart';
 import '../infrastructure/document/drift_document_repository.dart';
-import '../infrastructure/database/thinknest_database.dart' hide Document, Project;
+import '../infrastructure/database/thinknest_database.dart'
+    hide Document, Project;
 import '../infrastructure/project/drift_project_repository.dart';
 
 final databaseProvider = Provider<ThinkNestDatabase>((ref) {
