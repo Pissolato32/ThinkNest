@@ -37,13 +37,13 @@ class DriftConversationRepository implements ConversationRepository {
       (_database.update(_database.conversationMessages)
             ..where((row) => row.id.equals(message.id)))
           .write(
-            db.ConversationMessagesCompanion(
-              content: Value(message.content),
-              providerId: Value(message.providerId),
-              model: Value(message.model),
-              isPending: Value(message.isPending),
-            ),
-          );
+        db.ConversationMessagesCompanion(
+          content: Value(message.content),
+          providerId: Value(message.providerId),
+          model: Value(message.model),
+          isPending: Value(message.isPending),
+        ),
+      );
 
   ConversationMessage _fromRow(db.ConversationMessage row) =>
       ConversationMessage(
