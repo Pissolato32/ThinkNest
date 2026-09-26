@@ -16,7 +16,8 @@ class CreateProject {
   }) async {
     final normalizedTitle = title.trim();
     if (normalizedTitle.isEmpty) {
-      throw ArgumentError.value(title, 'title', 'A ideia não pode estar vazia.');
+      throw ArgumentError.value(
+          title, 'title', 'A ideia não pode estar vazia.');
     }
 
     final now = DateTime.now().toUtc();
