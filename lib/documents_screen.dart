@@ -76,7 +76,7 @@ class _DocumentsScreenState extends ConsumerState<DocumentsScreen> {
     final documents = ref.watch(documentsProvider(widget.projectId));
 
     return Scaffold(
-      appBar: AppBar(title: Text('Documentos — ' + widget.title)),
+      appBar: AppBar(title: Text('Documentos — ${widget.title}')),
       body: Padding(
         padding: const EdgeInsets.all(16),
         child: Column(
@@ -122,12 +122,8 @@ class _DocumentsScreenState extends ConsumerState<DocumentsScreen> {
                       return ListTile(
                         title: Text(document.title),
                         subtitle: Text(
-                          'v' +
-                              document.version.toString() +
-                              ' • DNA v' +
-                              document.dnaVersion.toString() +
-                              ' • ' +
-                              document.status.name,
+                          'v${document.version} • DNA v${document.dnaVersion} • '
+                              '${document.status.name}',
                         ),
                         trailing: document.status == DocumentStatus.archived
                             ? null
