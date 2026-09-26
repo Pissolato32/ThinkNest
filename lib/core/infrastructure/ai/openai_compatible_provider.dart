@@ -36,7 +36,8 @@ class OpenAiCompatibleProvider implements AiProvider {
     }
     final json = jsonDecode(response.body) as Map<String, dynamic>;
     final choices = json['choices'] as List<dynamic>? ?? const [];
-    final first = choices.isEmpty ? null : choices.first as Map<String, dynamic>;
+    final first =
+        choices.isEmpty ? null : choices.first as Map<String, dynamic>;
     final message = first?['message'] as Map<String, dynamic>?;
     final usage = json['usage'] as Map<String, dynamic>?;
     return AiResponse(
@@ -73,8 +74,8 @@ class OpenAiCompatibleProvider implements AiProvider {
       final json = jsonDecode(payload) as Map<String, dynamic>;
       final choices = json['choices'] as List<dynamic>? ?? const [];
       if (choices.isEmpty) continue;
-      final delta =
-          (choices.first as Map<String, dynamic>)['delta'] as Map<String, dynamic>?;
+      final delta = (choices.first as Map<String, dynamic>)['delta']
+          as Map<String, dynamic>?;
       final content = delta?['content'] as String?;
       if (content != null && content.isNotEmpty) yield content;
     }
