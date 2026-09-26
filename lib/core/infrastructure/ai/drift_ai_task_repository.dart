@@ -29,7 +29,10 @@ class DriftAiTaskRepository implements AiTaskRepository {
           .write(const db.AiTasksCompanion(status: Value('COMPLETED')));
 
   @override
-  Future<void> markPending(String id, {String? error}) =>
+  Future<void> markPending(
+    String id, {
+    String? error,
+  }) =>
       (_database.update(_database.aiTasks)..where((row) => row.id.equals(id)))
           .write(
         db.AiTasksCompanion(
