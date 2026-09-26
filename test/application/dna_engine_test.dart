@@ -14,10 +14,12 @@ class FakeProjectRepository implements ProjectRepository {
   final List<ProjectSnapshot> snapshots = [];
 
   @override
-  Future<Project?> getById(String id) async => project?.id == id ? project : null;
+  Future<Project?> getById(String id) async =>
+      project?.id == id ? project : null;
 
   @override
-  Stream<List<Project>> watchAll() => Stream.value([if (project != null) project!]);
+  Stream<List<Project>> watchAll() =>
+      Stream.value([if (project != null) project!]);
 
   @override
   Future<void> create(Project project, {ProjectDna? dna}) async {
@@ -38,13 +40,15 @@ class FakeProjectRepository implements ProjectRepository {
   Future<void> saveDna(ProjectDna dna) async => this.dna = dna;
 
   @override
-  Future<void> createSnapshot(ProjectSnapshot snapshot) async => snapshots.add(snapshot);
+  Future<void> createSnapshot(ProjectSnapshot snapshot) async =>
+      snapshots.add(snapshot);
 }
 
 void main() {
   final now = DateTime.utc(2026, 1, 1);
 
-  FakeProjectRepository repository() => FakeProjectRepository(
+  FakeProjectRepository repository() =>
+      FakeProjectRepository(
         Project(id: 'p1', title: 'Idea', createdAt: now, updatedAt: now),
         ProjectDna(projectId: 'p1', version: 1, updatedAt: now),
       );
