@@ -24,8 +24,7 @@ class RuleBasedDnaExtractor implements DnaExtractor {
 
       final marker = match.group(0)!.toLowerCase();
       final type = switch (marker) {
-        'objetivo:' || 'público:' =>
-          DnaInferenceType.corePillar,
+        'objetivo:' || 'público:' => DnaInferenceType.corePillar,
         'restrição:' => DnaInferenceType.technicalConstraint,
         'decisão:' => DnaInferenceType.decision,
         'incerteza:' => DnaInferenceType.uncertainty,
