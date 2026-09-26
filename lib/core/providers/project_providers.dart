@@ -4,6 +4,7 @@ import '../application/conversation/send_message.dart';
 import '../application/document/change_document_status.dart';
 import '../application/document/generate_document.dart';
 import '../application/project/create_project.dart';
+import '../application/readiness/evaluate_readiness.dart';
 import '../domain/ai/ai_provider.dart';
 import '../domain/ai/ai_task_repository.dart';
 import '../domain/conversation/conversation_repository.dart';
@@ -49,6 +50,13 @@ final documentsProvider = StreamProvider.family<List<Document>, String>(
     return ref.watch(documentRepositoryProvider).watchByProject(projectId);
   },
 );
+
+final evaluateReadinessProvider = Provider<EvaluateReadiness>((ref) {
+  return EvaluateReadiness(
+    ref.watch(projectRepositoryProvider),
+    ref.watch(documentRepositoryProvider),
+  );
+});
 
 final conversationRepositoryProvider = Provider<ConversationRepository>((ref) {
   return DriftConversationRepository(ref.watch(databaseProvider));
