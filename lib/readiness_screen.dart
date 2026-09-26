@@ -31,8 +31,7 @@ class ReadinessScreen extends ConsumerWidget {
             appBar: AppBar(title: Text('Readiness — $title')),
             body: Center(
               child: Text(
-                'Não foi possível avaliar readiness: ' +
-                snapshot.error.toString(),
+                'Não foi possível avaliar readiness: ${snapshot.error}',
               ),
             ),
           );
@@ -60,9 +59,8 @@ class ReadinessScreen extends ConsumerWidget {
                         : Icons.radio_button_unchecked,
                   ),
                   title: Text(dimension.label),
-                  subtitle: dimension.detail == null
-                      ? null
-                      : Text(dimension.detail!),
+                  subtitle:
+                      dimension.detail == null ? null : Text(dimension.detail!),
                 ),
               ),
               if (report.blockers.isNotEmpty) ...[
@@ -144,10 +142,8 @@ class _StatusCard extends StatelessWidget {
                   ),
                   const SizedBox(height: 4),
                   Text(
-                    report.blockers.length.toString() +
-                    ' blocker(s) • ' +
-                    report.warnings.length.toString() +
-                    ' warning(s)',
+                    '${report.blockers.length} blocker(s) • '
+                    '${report.warnings.length} warning(s)',
                   ),
                 ],
               ),
