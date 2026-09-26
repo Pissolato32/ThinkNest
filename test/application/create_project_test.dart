@@ -18,7 +18,8 @@ class _FakeProjectRepository implements ProjectRepository {
   Future<Project?> getById(String id) async => project;
 
   @override
-  Stream<List<Project>> watchAll() => Stream.value(project == null ? [] : [project!]);
+  Stream<List<Project>> watchAll() =>
+      Stream.value(project == null ? [] : [project!]);
 
   @override
   Future<void> update(Project project) async {}
