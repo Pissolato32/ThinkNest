@@ -152,6 +152,38 @@ void main() {
     );
   });
 
+
+  test('matches the document lifecycle contract', () {
+    const valid = {
+      (
+        DocumentStatus.draft,
+        DocumentStatus.generated,
+      ),
+      (
+        DocumentStatus.generated,
+        DocumentStatus.userReviewed,
+      ),
+      (
+        DocumentStatus.userReviewed,
+        DocumentStatus.approved,
+      ),
+      (
+        DocumentStatus.approved,
+        DocumentStatus.archived,
+      ),
+    };
+
+    for (final from in DocumentStatus.values) {
+      for (final to in DocumentStatus.values) {
+        expect(
+          DocumentLifecycle.canTransition(from, to),
+          valid.contains((from, to)),
+          reason: '${from.name} → ${to.name}',
+        );
+      }
+    }
+  });
+
   test('changes status only through valid lifecycle transition', () async {
     final documents = _DocumentRepository();
     final document = Document(
