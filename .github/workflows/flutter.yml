@@ -35,7 +35,11 @@ jobs:
         run: dart format --output=none --set-exit-if-changed lib test
 
       - name: Analyze
-        run: flutter analyze
+        run: |
+          set +e
+          flutter analyze 2>&1 | tee flutter-analyze.log
+          status=${PIPESTATUS[0]}
+          exit $status
 
       - name: Test
         run: flutter test
