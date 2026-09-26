@@ -29,7 +29,7 @@ jobs:
         run: flutter pub get
 
       - name: Generate Drift code
-        run: dart run build_runner build --delete-conflicting-outputs
+        run: dart run build_runner build
 
       - name: Verify formatting
         run: |
@@ -46,7 +46,11 @@ jobs:
           exit $status
 
       - name: Test
-        run: flutter test
+        run: |
+          set +e
+          flutter test 2>&1 | tee flutter-test.log
+          status=${PIPESTATUS[0]}
+          exit $status
 
       - name: Upload CI diagnostics on failure
         if: failure()
@@ -55,6 +59,7 @@ jobs:
           name: flutter-ci-diagnostics-${{ github.run_id }}
           path: |
             flutter-analyze.log
+            flutter-test.log
             dart-format.log
           if-no-files-found: ignore
           retention-days: 7

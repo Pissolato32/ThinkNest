@@ -13,7 +13,7 @@ Executar localmente, na mesma ordem do CI:
 ```bash
 flutter create . --platforms=android,web --no-pub
 flutter pub get
-dart run build_runner build --delete-conflicting-outputs
+dart run build_runner build
 dart format --set-exit-if-changed lib test
 flutter analyze
 flutter test
@@ -57,7 +57,7 @@ Se o CI informar que arquivos foram `Changed` ou que `Formatted N files (M chang
 Sempre que tabelas, companions, colunas ou queries forem alterados:
 
 ```bash
-dart run build_runner build --delete-conflicting-outputs
+dart run build_runner build
 flutter analyze
 flutter test
 ```
@@ -113,3 +113,63 @@ Uma falha posterior não deve ser inferida enquanto uma etapa anterior ainda blo
 - [ ] novos comportamentos possuem testes
 - [ ] documentação e contratos continuam alinhados
 - [ ] CI verde antes de avançar para a próxima fatia
+
+## 10. Histórico de falhas e prevenção
+
+As falhas do Flutter CI devem virar regras permanentes, não apenas correções pontuais.
+
+### 10.1 Testes assíncronos em Dart
+
+O método de produção `Future<void>` não pode ser validado como se lançasse exceção de forma síncrona.
+
+Para uma operação que deve falhar:
+
+```dart
+await expectLater(
+  operation(),
+  throwsStateError,
+);
+```
+
+Porém, **a forma assíncrona correta não torna a expectativa semanticamente correta**. Antes de usar `throwsStateError`, verificar a máquina de estados e confirmar que a transição realmente é inválida.
+
+No P0.6 ocorreu exatamente esta regressão:
+
+- `Generated → User Reviewed` é válida.
+- `User Reviewed → Approved` é válida.
+- `Approved → Archived` é válida.
+- Portanto, esperar `StateError` para `User Reviewed → Approved` estava errado.
+- A transição inválida usada pelo teste deve ser uma que o contrato realmente rejeita, como `Approved → Generated`.
+
+O CI run `36261737555` confirmou a causa: 21 testes passaram e apenas o teste de lifecycle falhou porque esperava `StateError` de uma operação que retornava `Future<void>` com sucesso.
+
+**Regra permanente:** todo teste de máquina de estados deve verificar primeiro a tabela/contrato de transições e cobrir pelo menos uma transição válida e uma inválida. Não inferir invalidade pelo nome da operação ou pela intenção do teste.
+
+### 10.2 Formatter
+
+O histórico do P0.6 mostrou repetidas falhas de `dart format` causadas por tentativas de reproduzir manualmente a saída do formatter.
+
+**Regra permanente:** nunca ajustar estilo por inferência. Rodar o formatter oficial e aplicar literalmente sua saída.
+
+### 10.3 Analyze depois do formatter
+
+O CI também revelou problemas que só apareceram depois que o formatter ficou verde: imports ausentes, colisões com tipos gerados pelo Drift, `Value<T>` e construções `const` inválidas.
+
+**Regra permanente:** não corrigir vários estágios ao mesmo tempo. A ordem é formatter → analyze → test; cada estágio deve ficar verde antes de atacar a causa do estágio seguinte.
+
+### 10.4 Drift/build_runner
+
+O Flutter 3.35.7 reportou que `--delete-conflicting-outputs` foi removido e ignorado pelo build_runner.
+
+**Regra permanente:** usar a invocação suportada pelo toolchain fixado no CI:
+
+```bash
+dart run build_runner build
+```
+
+Não manter flags depreciadas/removidas apenas por hábito.
+
+### 10.5 Diagnóstico obrigatório de testes
+
+O CI agora preserva `flutter-test.log` como artefato quando o pipeline falha. Isso evita depender apenas do resumo visual do Actions para descobrir qual teste falhou.
+

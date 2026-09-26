@@ -1,16 +1,22 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../application/conversation/send_message.dart';
+import '../application/document/change_document_status.dart';
+import '../application/document/generate_document.dart';
 import '../application/project/create_project.dart';
 import '../domain/ai/ai_provider.dart';
 import '../domain/ai/ai_task_repository.dart';
 import '../domain/conversation/conversation_repository.dart';
+import '../domain/document/document.dart';
+import '../domain/document/document_repository.dart';
 import '../domain/project/project.dart';
 import '../domain/project/project_repository.dart';
 import '../infrastructure/ai/drift_ai_task_repository.dart';
 import '../infrastructure/ai/echo_provider.dart';
 import '../infrastructure/conversation/drift_conversation_repository.dart';
-import '../infrastructure/database/thinknest_database.dart' hide Project;
+import '../infrastructure/document/drift_document_repository.dart';
+import '../infrastructure/database/thinknest_database.dart'
+    hide Document, Project;
 import '../infrastructure/project/drift_project_repository.dart';
 
 final databaseProvider = Provider<ThinkNestDatabase>((ref) {
@@ -22,6 +28,27 @@ final databaseProvider = Provider<ThinkNestDatabase>((ref) {
 final projectRepositoryProvider = Provider<ProjectRepository>((ref) {
   return DriftProjectRepository(ref.watch(databaseProvider));
 });
+
+final documentRepositoryProvider = Provider<DocumentRepository>((ref) {
+  return DriftDocumentRepository(ref.watch(databaseProvider));
+});
+
+final generateDocumentProvider = Provider<GenerateDocument>((ref) {
+  return GenerateDocument(
+    ref.watch(projectRepositoryProvider),
+    ref.watch(documentRepositoryProvider),
+  );
+});
+
+final changeDocumentStatusProvider = Provider<ChangeDocumentStatus>((ref) {
+  return ChangeDocumentStatus(ref.watch(documentRepositoryProvider));
+});
+
+final documentsProvider = StreamProvider.family<List<Document>, String>(
+  (ref, projectId) {
+    return ref.watch(documentRepositoryProvider).watchByProject(projectId);
+  },
+);
 
 final conversationRepositoryProvider = Provider<ConversationRepository>((ref) {
   return DriftConversationRepository(ref.watch(databaseProvider));
