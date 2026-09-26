@@ -64,5 +64,6 @@ jobs:
           path: |
             flutter-analyze.log
             dart-format.log
+            formatter-documents.diff
           if-no-files-found: ignore
           retention-days: 7
