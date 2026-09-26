@@ -1,6 +1,6 @@
 # ThinkNest — Plano de Implementação
 
-**Status:** EXECUÇÃO P0 — P0.1–P0.6 concluídos; P0.7 em implementação  
+**Status:** EXECUÇÃO P0 — P0.1–P0.7 concluídos; P0.8 em implementação  
 **Issue principal:** #5  
 **Fonte normativa:** `docs/`
 
@@ -109,13 +109,22 @@ A implementação deve preservar os princípios da Constituição: offline-first
 - testes cobrindo NOT_READY, READY_WITH_WARNINGS e READY.
 
 ### P0.8 — Implementation Pack
-- [ ] manifest.
-- [ ] PROJECT_DNA.json.
-- [ ] documentos.
-- [ ] decisões.
-- [ ] prompts.
-- [ ] hashes.
-- [ ] export local ZIP.
+- [x] manifest.
+- [x] PROJECT_DNA.json.
+- [x] documentos.
+- [x] decisões.
+- [x] prompts.
+- [x] hashes.
+- [x] export local ZIP.
+
+**Implementado nesta fatia:**
+- caso de uso BuildImplementationPack provider-neutral e determinístico;
+- pacote com MANIFEST.json, PROJECT_DNA.json, PRD, Architecture, decisões, prompts e .cursorrules;
+- SHA-256 por arquivo;
+- archive para geração ZIP inteiramente no cliente;
+- share_plus para compartilhar o ZIP pela interface nativa quando suportada;
+- export bloqueado até existirem PRD e Architecture aprovados;
+- testes do manifesto, hashes, conteúdo do ZIP e bloqueio por lifecycle.
 
 **Saída:** artefato consumível por ferramentas de execução.
 
