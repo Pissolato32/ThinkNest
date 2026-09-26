@@ -152,7 +152,6 @@ void main() {
     );
   });
 
-
   test('matches the document lifecycle contract', () {
     const valid = {
       (
