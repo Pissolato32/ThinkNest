@@ -1,6 +1,6 @@
 # ThinkNest — Plano de Implementação
 
-**Status:** EXECUÇÃO P0 — CI ESTABILIZADO  
+**Status:** EXECUÇÃO P0 — CI VERDE ATÉ P0.4; P0.5 EM VALIDAÇÃO  
 **Issue principal:** #5  
 **Fonte normativa:** `docs/`
 
