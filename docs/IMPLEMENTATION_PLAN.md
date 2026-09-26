@@ -49,17 +49,18 @@ A implementação deve preservar os princípios da Constituição: offline-first
 - Riverpod para injeção de banco/repositório/casos de uso;
 - lista reativa de projetos capturados;
 - testes de aplicação, persistência Drift e fluxo de UI;
-- CI #46 verde com formatação, análise, geração Drift e testes.
+- CI #47 verde com formatação, análise, geração Drift e testes.
 
 ### P0.4 — Conversation + PAL
-- [ ] Contrato provider-neutral.
-- [ ] Primeiro adapter.
-- [ ] AI Gateway.
-- [ ] Context assembler baseado em DNA + últimas mensagens.
-- [ ] Fila local quando offline.
-- [ ] Streaming quando online.
+- [x] Contrato provider-neutral.
+- [x] Primeiro adapter compatível com API OpenAI (`/chat/completions`).
+- [x] AI Gateway mínimo via caso de uso `SendMessage`.
+- [x] Context assembler baseado em DNA + mensagens persistidas.
+- [x] Fila local durável para falhas/offline, preservando tarefas `PENDING`.
+- [x] Streaming SSE no adapter provider-neutral.
+- [x] Conversa local integrada à tela do projeto.
 
-**Saída:** conversa real preservando o projeto como contexto.
+**Saída:** conversa real preservando o projeto como contexto, sem acoplamento do domínio a um fornecedor.
 
 ### P0.5 — DNA Engine
 - [ ] Extração de fatos.
