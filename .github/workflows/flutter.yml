@@ -31,22 +31,20 @@ jobs:
       - name: Generate Drift code
         run: dart run build_runner build --delete-conflicting-outputs
 
-      - name: Analyze
-        run: |
-          set +e
-          flutter analyze 2>&1 | tee flutter-analyze.log
-          status=${PIPESTATUS[0]}
-          echo "FLUTTER_ANALYZE_EXIT_CODE=$status" >> flutter-analyze.log
-          exit $status
+      - name: Verify formatting
+        run: dart format --output=none --set-exit-if-changed lib test
 
-      - name: Upload analyzer diagnostics
-        if: always()
+      - name: Analyze
+        run: flutter analyze
+
+      - name: Test
+        run: flutter test
+
+      - name: Upload analyzer diagnostics on failure
+        if: failure()
         uses: actions/upload-artifact@v4
         with:
           name: flutter-analyzer-diagnostics-${{ github.run_id }}
           path: flutter-analyze.log
           if-no-files-found: ignore
           retention-days: 7
-
-      - name: Test
-        run: flutter test
