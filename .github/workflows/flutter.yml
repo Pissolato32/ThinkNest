@@ -32,7 +32,11 @@ jobs:
         run: dart run build_runner build --delete-conflicting-outputs
 
       - name: Verify formatting
-        run: dart format --output=none --set-exit-if-changed lib test
+        run: |
+          set +e
+          dart format --output=none --set-exit-if-changed lib test 2>&1 | tee dart-format.log
+          status=${PIPESTATUS[0]}
+          exit $status
 
       - name: Analyze
         run: |
