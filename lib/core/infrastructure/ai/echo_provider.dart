@@ -8,7 +8,8 @@ class EchoProvider implements AiProvider {
 
   @override
   Future<AiResponse> complete(AiRequest request) async => AiResponse(
-        content: 'Recebi sua mensagem. Vamos estruturá-la no contexto deste projeto.',
+        content:
+            'Recebi sua mensagem. Vamos estruturá-la no contexto deste projeto.',
         providerId: id,
         model: 'local-test',
       );
