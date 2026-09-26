@@ -31,6 +31,14 @@ jobs:
       - name: Generate Drift code
         run: dart run build_runner build --delete-conflicting-outputs
 
+      - name: Capture formatter diff for diagnostics
+        if: always()
+        run: |
+          cp lib/documents_screen.dart /tmp/documents_screen.dart
+          dart format /tmp/documents_screen.dart >/tmp/formatter-output.log
+          diff -u lib/documents_screen.dart /tmp/documents_screen.dart > formatter-documents.diff || true
+          cat /tmp/formatter-output.log
+
       - name: Verify formatting
         run: |
           set +e
@@ -56,5 +64,6 @@ jobs:
           path: |
             flutter-analyze.log
             dart-format.log
+            formatter-documents.diff
           if-no-files-found: ignore
           retention-days: 7
