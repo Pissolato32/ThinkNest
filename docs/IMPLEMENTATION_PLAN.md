@@ -179,8 +179,10 @@ Regras de implementação:
 - [x] Integração do outbox com Projects, Project DNA e Snapshots.
 - [x] Integração do outbox com Documents, ConversationMessages e AI Tasks.
 - [x] RLS remoto habilitado nas tabelas de sincronização e políticas vinculadas ao usuário autenticado.
-- [ ] Push/pull incremental.
-- [ ] Idempotência e conflito.
+- [x] Push/pull incremental.
+- [x] Idempotência por upsert/cursor e conflito determinístico.
+
+**P1.2 concluído:** o ciclo local `mutation → outbox → push → remote confirmation → pull → local merge` está implementado com retry/backoff, cursores incrementais, last-write-wins para entidades mutáveis e semântica imutável para snapshots/mensagens. O acesso remoto é protegido por RLS e os privilégios do Data API para `authenticated` foram verificados.
 
 **Estado desta etapa:** a camada local produz mudanças persistentes para todos os agregados sincronizáveis. Ainda não existe um Sync Engine responsável por push/pull remoto; portanto, o outbox permanece como fonte local de mudanças pendentes.
 
