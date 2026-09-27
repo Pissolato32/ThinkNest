@@ -176,9 +176,13 @@ Regras de implementação:
 ### P1.2 — Sincronização
 - [x] Modelo de mudanças/outbox.
 - [x] Sync queue persistente.
+- [x] Integração do outbox com Projects, Project DNA e Snapshots.
+- [x] Integração do outbox com Documents, ConversationMessages e AI Tasks.
+- [x] RLS remoto habilitado nas tabelas de sincronização e políticas vinculadas ao usuário autenticado.
 - [ ] Push/pull incremental.
 - [ ] Idempotência e conflito.
-- [ ] RLS por usuário/projeto.
+
+**Estado desta etapa:** a camada local produz mudanças persistentes para todos os agregados sincronizáveis. Ainda não existe um Sync Engine responsável por push/pull remoto; portanto, o outbox permanece como fonte local de mudanças pendentes.
 
 ### P1.3 — AI Task Queue Cloud
 - [ ] sincronização das AI tasks persistentes.
