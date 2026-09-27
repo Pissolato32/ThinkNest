@@ -3,8 +3,12 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import 'core/providers/project_providers.dart';
 import 'conversation_screen.dart';
+import 'core/infrastructure/supabase/supabase_config.dart';
+import 'core/infrastructure/supabase/supabase_initializer.dart';
 
-void main() {
+Future<void> main() async {
+  WidgetsFlutterBinding.ensureInitialized();
+  await const SupabaseInitializer().initialize(SupabaseConfig.fromEnvironment);
   runApp(const ProviderScope(child: ThinkNestApp()));
 }
 
