@@ -76,6 +76,20 @@ class Documents extends Table {
   Set<Column> get primaryKey => {id};
 }
 
+class SyncOutboxEntries extends Table {
+  TextColumn get id => text()();
+  TextColumn get entityType => text()();
+  TextColumn get entityId => text()();
+  TextColumn get operation => text()();
+  TextColumn get payloadJson => text()();
+  DateTimeColumn get createdAt => dateTime()();
+  IntColumn get attempts => integer().withDefault(const Constant(0))();
+  TextColumn get lastError => text().nullable()();
+
+  @override
+  Set<Column> get primaryKey => {id};
+}
+
 class ProjectSnapshots extends Table {
   TextColumn get id => text()();
   TextColumn get projectId =>
@@ -95,6 +109,7 @@ class ProjectSnapshots extends Table {
   ProjectDnaRows,
   ProjectSnapshots,
   Documents,
+  SyncOutboxEntries,
   ConversationMessages,
   AiTasks
 ])
@@ -103,7 +118,7 @@ class ThinkNestDatabase extends _$ThinkNestDatabase {
       : super(executor ?? driftDatabase(name: 'thinknest'));
 
   @override
-  int get schemaVersion => 4;
+  int get schemaVersion => 5;
 
   @override
   MigrationStrategy get migration => MigrationStrategy(
@@ -118,6 +133,9 @@ class ThinkNestDatabase extends _$ThinkNestDatabase {
           }
           if (from < 4) {
             await m.createTable(documents);
+          }
+          if (from < 5) {
+            await m.createTable(syncOutboxEntries);
           }
         },
       );
