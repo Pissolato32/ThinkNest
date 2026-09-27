@@ -6,14 +6,17 @@ import 'package:thinknest/core/domain/project/project_snapshot.dart';
 import 'package:thinknest/core/infrastructure/database/thinknest_database.dart'
     hide Project, ProjectSnapshot;
 import 'package:thinknest/core/infrastructure/project/drift_project_repository.dart';
+import 'package:thinknest/core/infrastructure/sync/drift_sync_outbox_repository.dart';
 
 void main() {
   late ThinkNestDatabase database;
   late DriftProjectRepository repository;
+  late DriftSyncOutboxRepository outbox;
 
   setUp(() {
     database = ThinkNestDatabase(NativeDatabase.memory());
-    repository = DriftProjectRepository(database);
+    outbox = DriftSyncOutboxRepository(database);
+    repository = DriftProjectRepository(database, outbox: outbox);
   });
 
   tearDown(() async {
@@ -43,6 +46,10 @@ void main() {
     expect(restored?.title, project.title);
     expect(restored?.maturity, ProjectMaturity.captured);
     expect(restoredDna?.identity['title'], project.title);
+
+    final pending = await outbox.watchPending().first;
+    expect(pending.map((entry) => entry.entityId), contains(project.id));
+    expect(pending.map((entry) => entry.entityType.name), contains('project'));
   });
 
   test('persists immutable project snapshots', () async {
