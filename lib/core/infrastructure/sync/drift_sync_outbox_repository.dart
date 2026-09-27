@@ -32,15 +32,21 @@ class DriftSyncOutboxRepository implements SyncOutboxRepository {
           );
 
   @override
-  Future<void> markAttempt(String id, {String? error}) =>
-      (_database.update(_database.syncOutboxEntries)
-            ..where((row) => row.id.equals(id)))
-          .write(
-        db.SyncOutboxEntriesCompanion(
-          attempts: const Value(1),
-          lastError: Value(error),
-        ),
-      );
+  Future<void> markAttempt(String id, {String? error}) async {
+    final row = await (_database.select(_database.syncOutboxEntries)
+          ..where((item) => item.id.equals(id)))
+        .getSingleOrNull();
+    if (row == null) return;
+
+    await (_database.update(_database.syncOutboxEntries)
+          ..where((item) => item.id.equals(id)))
+        .write(
+      db.SyncOutboxEntriesCompanion(
+        attempts: Value(row.attempts + 1),
+        lastError: Value(error),
+      ),
+    );
+  }
 
   @override
   Future<void> remove(String id) =>
