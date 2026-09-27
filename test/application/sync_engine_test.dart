@@ -91,6 +91,44 @@ void main() {
     expect(entry, isEmpty);
   });
 
+  test('pulls multiple pages and preserves cursor progress', () async {
+    final rows = List.generate(
+      501,
+      (index) => {
+        'id': 'p' + index.toString().padLeft(3, '0'),
+        'user_id': 'u1',
+        'title': 'Projeto ' + index.toString(),
+        'category': null,
+        'maturity_level': 'CAPTURED',
+        'is_pinned': false,
+        'is_archived': false,
+        'created_at': '2026-01-01T00:00:00Z',
+        'updated_at': '2026-01-01T00:00:' +
+            (index ~/ 100).toString().padLeft(2, '0') +
+            'Z',
+      },
+    );
+    final remote = FakeSyncRemoteRepository(
+      remoteRows: {SyncEntityType.project: rows},
+      pageSize: 500,
+    );
+
+    final engine = SyncEngine(
+      FakeAuthRepository(),
+      outbox,
+      remote,
+      cursors,
+      applier,
+    );
+
+    final result = await engine.sync();
+    final cursor = await cursors.get(SyncEntityType.project.name);
+
+    expect(result.pulled, 501);
+    expect(cursor?.lastEntityId, 'p500');
+    expect(await database.findProject('p500'), isNotNull);
+  });
+
   test(
       'pulls remote project and advances its cursor without creating outbox work',
       () async {
@@ -159,10 +197,12 @@ class FakeSyncRemoteRepository implements SyncRemoteRepository {
   FakeSyncRemoteRepository({
     this.failuresBeforeSuccess = 0,
     Map<SyncEntityType, List<Map<String, dynamic>>>? remoteRows,
+    this.pageSize = 500,
   }) : remoteRows = remoteRows ?? {};
 
   int failuresBeforeSuccess;
   int attempts = 0;
+  final int pageSize;
   final Map<SyncEntityType, List<Map<String, dynamic>>> remoteRows;
   final List<SyncOutboxEntry> upserted = [];
 
@@ -191,7 +231,7 @@ class FakeSyncRemoteRepository implements SyncRemoteRepository {
   ) async {
     final rows = remoteRows[entityType] ?? const [];
     if (cursor == null) return rows;
-    return rows.where((row) {
+    final filtered = rows.where((row) {
       final timestamp = DateTime.parse(
         row[_timestampColumn(entityType)] as String,
       ).toUtc();
@@ -203,6 +243,7 @@ class FakeSyncRemoteRepository implements SyncRemoteRepository {
       return cursor.lastEntityId == null ||
           id.compareTo(cursor.lastEntityId!) > 0;
     }).toList();
+    return filtered.take(pageSize).toList();
   }
 
   String _timestampColumn(SyncEntityType type) => switch (type) {
