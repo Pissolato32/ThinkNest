@@ -60,6 +60,12 @@ A aplicação Flutter não deve conter service-role key. Credenciais públicas d
 10. Aplicação local sem re-enfileirar mudanças remotas.
 11. Testes automatizados de push, retry, pull e cursor.
 
+## Limites conhecidos
+
+- Exclusões remotas são aplicadas diretamente para Projects; o protocolo atual não mantém tombstones para reproduzir exclusões de entidades removidas enquanto o cliente estava offline.
+- A validação automatizada usa repositórios remotos simulados; o fluxo com uma sessão Supabase autenticada real ainda requer teste end-to-end.
+- A execução automática por reconexão/background pertence à etapa posterior de plataforma.
+
 ## Pendências posteriores
 
 1. Autenticação/UI completa para criação e gerenciamento da conta.
