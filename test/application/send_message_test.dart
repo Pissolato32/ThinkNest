@@ -1,5 +1,6 @@
 import 'package:flutter_test/flutter_test.dart';
 
+import 'package:thinknest/core/application/ai/ai_task_worker.dart';
 import 'package:thinknest/core/application/conversation/send_message.dart';
 import 'package:thinknest/core/domain/ai/ai_provider.dart';
 import 'package:thinknest/core/domain/ai/ai_task.dart';
@@ -59,18 +60,37 @@ class FakeProjectRepository implements ProjectRepository {
 
 class FakeTaskRepository implements AiTaskRepository {
   final List<AiTask> tasks = [];
+  final Map<String, String> payloads = {};
   final List<String> completed = [];
   final List<String> pending = [];
+  final List<String> running = [];
+  final List<String> failed = [];
 
   @override
-  Future<void> enqueue(AiTask task, {required String payloadJson}) async =>
-      tasks.add(task);
+  Future<void> enqueue(AiTask task, {required String payloadJson}) async {
+    tasks.add(task);
+    payloads[task.id] = payloadJson;
+  }
+
+  @override
+  Future<List<AiTask>> listPending() async =>
+      tasks.where((task) => !completed.contains(task.id)).toList();
+
+  @override
+  Future<String?> payloadFor(String id) async => payloads[id];
+
+  @override
+  Future<void> markRunning(String id) async => running.add(id);
 
   @override
   Future<void> markCompleted(String id) async => completed.add(id);
 
   @override
   Future<void> markPending(String id, {String? error}) async => pending.add(id);
+
+  @override
+  Future<void> markFailed(String id, {required String error}) async =>
+      failed.add(id);
 }
 
 class FakeProvider implements AiProvider {
@@ -100,12 +120,17 @@ void main() {
         version: 1,
         updatedAt: DateTime.utc(2026),
       );
-
-      final result = await SendMessage(
+      final worker = AiTaskWorker(
+        tasks,
         conversation,
         FakeProjectRepository(dna),
         FakeProvider(),
+      );
+
+      final result = await SendMessage(
+        conversation,
         tasks,
+        worker,
       )(projectId: 'project-1', content: 'Quero criar um app.');
 
       expect(result.role, ConversationMessageRole.assistant);

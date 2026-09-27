@@ -11,15 +11,14 @@ import '../../domain/conversation/conversation_repository.dart';
 class SendMessage {
   SendMessage(
     this._conversationRepository,
-    this._projectRepository,
     this._taskRepository,
     this._worker, {
     Uuid? uuid,
   }) : _uuid = uuid ?? const Uuid();
 
   final ConversationRepository _conversationRepository;
-  final AiTaskWorker _worker;
   final AiTaskRepository _taskRepository;
+  final AiTaskWorker _worker;
   final Uuid _uuid;
 
   Future<ConversationMessage> call({
@@ -34,6 +33,7 @@ class SendMessage {
         'A mensagem não pode estar vazia.',
       );
     }
+
     final userMessage = ConversationMessage(
       id: _uuid.v4(),
       projectId: projectId,
