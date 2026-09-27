@@ -33,7 +33,7 @@ void main() {
           ),
         );
 
-    const task = AiTask(
+    final task = AiTask(
       id: 't1',
       projectId: 'p1',
       createdAt: DateTime.utc(2026, 1, 1),
