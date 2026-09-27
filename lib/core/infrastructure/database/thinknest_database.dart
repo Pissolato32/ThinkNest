@@ -40,6 +40,7 @@ class ConversationMessages extends Table {
   TextColumn get providerId => text().nullable()();
   TextColumn get model => text().nullable()();
   BoolColumn get isPending => boolean().withDefault(const Constant(false))();
+  DateTimeColumn get updatedAt => dateTime()();
 
   @override
   Set<Column> get primaryKey => {id};
@@ -54,6 +55,7 @@ class AiTasks extends Table {
   IntColumn get attempts => integer().withDefault(const Constant(0))();
   TextColumn get lastError => text().nullable()();
   DateTimeColumn get createdAt => dateTime()();
+  DateTimeColumn get updatedAt => dateTime()();
 
   @override
   Set<Column> get primaryKey => {id};
@@ -74,6 +76,15 @@ class Documents extends Table {
 
   @override
   Set<Column> get primaryKey => {id};
+}
+
+class SyncCursors extends Table {
+  TextColumn get entityType => text()();
+  DateTimeColumn get lastTimestamp => dateTime().nullable()();
+  TextColumn get lastEntityId => text().nullable()();
+
+  @override
+  Set<Column> get primaryKey => {entityType};
 }
 
 class SyncOutboxEntries extends Table {
@@ -110,6 +121,7 @@ class ProjectSnapshots extends Table {
   ProjectSnapshots,
   Documents,
   SyncOutboxEntries,
+  SyncCursors,
   ConversationMessages,
   AiTasks
 ])
@@ -118,7 +130,7 @@ class ThinkNestDatabase extends _$ThinkNestDatabase {
       : super(executor ?? driftDatabase(name: 'thinknest'));
 
   @override
-  int get schemaVersion => 5;
+  int get schemaVersion => 7;
 
   @override
   MigrationStrategy get migration => MigrationStrategy(
@@ -136,6 +148,14 @@ class ThinkNestDatabase extends _$ThinkNestDatabase {
           }
           if (from < 5) {
             await m.createTable(syncOutboxEntries);
+          }
+          if (from < 6) {
+            await m.addColumn(
+                conversationMessages, conversationMessages.updatedAt);
+            await m.addColumn(aiTasks, aiTasks.updatedAt);
+          }
+          if (from < 7) {
+            await m.createTable(syncCursors);
           }
         },
       );
