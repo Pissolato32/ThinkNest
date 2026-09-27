@@ -3,7 +3,8 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:thinknest/core/domain/conversation/conversation_message.dart';
 import 'package:thinknest/core/domain/sync/sync_outbox_entry.dart';
 import 'package:thinknest/core/infrastructure/conversation/drift_conversation_repository.dart';
-import 'package:thinknest/core/infrastructure/database/thinknest_database.dart';
+import 'package:thinknest/core/infrastructure/database/thinknest_database.dart'
+    hide ConversationMessage;
 import 'package:thinknest/core/infrastructure/sync/drift_sync_outbox_repository.dart';
 
 void main() {
