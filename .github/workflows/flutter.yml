@@ -36,6 +36,13 @@ jobs:
           set +e
           dart format --output=none --set-exit-if-changed lib test 2>&1 | tee dart-format.log
           status=${PIPESTATUS[0]}
+          if [ "$status" -ne 0 ]; then
+            cp lib/core/infrastructure/project/drift_project_repository.dart /tmp/drift_project_repository.dart
+            dart format lib/core/infrastructure/project/drift_project_repository.dart >/dev/null
+            echo "Formatter diff for drift_project_repository.dart:"
+            git diff -- lib/core/infrastructure/project/drift_project_repository.dart
+            cp /tmp/drift_project_repository.dart lib/core/infrastructure/project/drift_project_repository.dart
+          fi
           exit $status
 
       - name: Analyze
