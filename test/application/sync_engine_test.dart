@@ -25,7 +25,7 @@ void main() {
     database = ThinkNestDatabase(NativeDatabase.memory());
     outbox = DriftSyncOutboxRepository(database);
     cursors = DriftSyncCursorRepository(database);
-    applier = DriftSyncApplier(database);
+    applier = DriftSyncApplier(database, outbox);
   });
 
   tearDown(() async {
@@ -89,6 +89,101 @@ void main() {
     expect(result.failed, 0);
     expect(remote.attempts, 3);
     expect(entry, isEmpty);
+  });
+
+  test(
+      'pulls a newer remote project and discards stale local outbox work',
+      () async {
+    await database.upsertProject(
+      ProjectsCompanion.insert(
+        id: 'p1',
+        title: 'Projeto local antigo',
+        maturityLevel: const Value('CAPTURED'),
+        isPinned: const Value(false),
+        isArchived: const Value(false),
+        createdAt: DateTime.utc(2026, 1, 1),
+        updatedAt: DateTime.utc(2026, 1, 2),
+      ),
+    );
+    await outbox.enqueue(
+      SyncOutboxEntry(
+        id: 'o1',
+        entityType: SyncEntityType.project,
+        entityId: 'p1',
+        operation: SyncOperation.upsert,
+        payloadJson: '{"id":"p1","title":"Stale local"}',
+        createdAt: DateTime.utc(2026, 1, 2),
+      ),
+    );
+
+    final remote = FakeSyncRemoteRepository(
+      remoteRows: {
+        SyncEntityType.project: [
+          {
+            'id': 'p1',
+            'user_id': 'u1',
+            'title': 'Projeto remoto novo',
+            'category': null,
+            'maturity_level': 'CAPTURED',
+            'is_pinned': false,
+            'is_archived': false,
+            'created_at': '2026-01-01T00:00:00Z',
+            'updated_at': '2026-01-03T00:00:00Z',
+          },
+        ],
+      },
+    );
+
+    final engine = SyncEngine(
+      FakeAuthRepository(),
+      outbox,
+      remote,
+      cursors,
+      applier,
+    );
+
+    final result = await engine.sync();
+    final project = await database.findProject('p1');
+
+    expect(result.pulled, 1);
+    expect(project.title, 'Projeto remoto novo');
+    expect(await outbox.watchPending().first, isEmpty);
+  });
+
+  test(
+      'pulls conversation messages using their mutation timestamp',
+      () async {
+    final remote = FakeSyncRemoteRepository(
+      remoteRows: {
+        SyncEntityType.conversationMessage: [
+          {
+            'id': 'm1',
+            'project_id': 'p1',
+            'role': 'user',
+            'content': 'Mensagem remota',
+            'created_at': '2026-01-01T00:00:00Z',
+            'updated_at': '2026-01-02T00:00:00Z',
+            'provider_id': null,
+            'model': null,
+            'is_pending': false,
+          },
+        ],
+      },
+    );
+
+    final engine = SyncEngine(
+      FakeAuthRepository(),
+      outbox,
+      remote,
+      cursors,
+      applier,
+    );
+
+    final result = await engine.sync();
+
+    expect(result.pulled, 1);
+    expect(await cursors.get(SyncEntityType.conversationMessage.name),
+        isNotNull);
   });
 
   test(
