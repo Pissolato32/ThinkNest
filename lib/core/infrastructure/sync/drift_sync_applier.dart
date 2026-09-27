@@ -167,7 +167,7 @@ class DriftSyncApplier {
             updatedAt: remoteUpdated,
           ),
         );
-  }  }
+  }
 
   String _timestampColumn(SyncEntityType type) => switch (type) {
         SyncEntityType.project => 'updated_at',
