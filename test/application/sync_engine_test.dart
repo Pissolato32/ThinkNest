@@ -9,7 +9,8 @@ import 'package:thinknest/core/domain/sync/sync_cursor_repository.dart';
 import 'package:thinknest/core/domain/sync/sync_outbox_entry.dart';
 import 'package:thinknest/core/domain/sync/sync_outbox_repository.dart';
 import 'package:thinknest/core/domain/sync/sync_remote_repository.dart';
-import 'package:thinknest/core/infrastructure/database/thinknest_database.dart';
+import 'package:thinknest/core/infrastructure/database/thinknest_database.dart'
+    hide SyncCursor, SyncOutboxEntry;
 import 'package:thinknest/core/infrastructure/sync/drift_sync_applier.dart';
 import 'package:thinknest/core/infrastructure/sync/drift_sync_cursor_repository.dart';
 import 'package:thinknest/core/infrastructure/sync/drift_sync_outbox_repository.dart';
