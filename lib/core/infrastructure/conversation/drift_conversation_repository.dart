@@ -46,6 +46,7 @@ class DriftConversationRepository implements ConversationRepository {
           providerId: Value(message.providerId),
           model: Value(message.model),
           isPending: Value(message.isPending),
+          updatedAt: Value(DateTime.now().toUtc()),
         ),
       );
       await _record(message);
@@ -64,6 +65,7 @@ class DriftConversationRepository implements ConversationRepository {
         providerId: Value(message.providerId),
         model: Value(message.model),
         isPending: Value(message.isPending),
+        updatedAt: message.createdAt,
       );
 
   Future<void> _record(ConversationMessage message) async {
