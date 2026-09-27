@@ -157,17 +157,17 @@ class DriftSyncApplier {
     if (local != null && !remoteUpdated.isAfter(local.updatedAt)) return;
     await _database.into(_database.aiTasks).insertOnConflictUpdate(
           db.AiTasksCompanion.insert(
-        id: id,
-        projectId: row['project_id'] as String,
-        status: Value(row['status'] as String),
-        payloadJson: Value(jsonEncode(row['payload_json'])),
-        attempts: Value(row['attempts'] as int),
-        lastError: Value(row['last_error'] as String?),
-        createdAt: DateTime.parse(row['created_at'] as String).toUtc(),
-        updatedAt: remoteUpdated,
-      ),
-    );
-  }
+            id: id,
+            projectId: row['project_id'] as String,
+            status: Value(row['status'] as String),
+            payloadJson: Value(jsonEncode(row['payload_json'])),
+            attempts: Value(row['attempts'] as int),
+            lastError: Value(row['last_error'] as String?),
+            createdAt: DateTime.parse(row['created_at'] as String).toUtc(),
+            updatedAt: remoteUpdated,
+          ),
+        );
+  }  }
 
   String _timestampColumn(SyncEntityType type) => switch (type) {
         SyncEntityType.project => 'updated_at',
