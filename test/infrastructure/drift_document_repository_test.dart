@@ -109,7 +109,7 @@ void main() {
             updatedAt: now,
           ),
         );
-  
+
     final document = Document(
       id: 'd1',
       projectId: 'p1',
@@ -122,10 +122,10 @@ void main() {
       createdAt: now,
       updatedAt: now,
     );
-  
+
     await repository.create(document);
     final entries = await outbox.watchPending().first;
-  
+
     expect(entries, hasLength(1));
     expect(entries.single.entityType, SyncEntityType.document);
     expect(entries.single.entityId, 'd1');
