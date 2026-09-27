@@ -3,7 +3,8 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:thinknest/core/domain/ai/ai_task.dart';
 import 'package:thinknest/core/domain/sync/sync_outbox_entry.dart';
 import 'package:thinknest/core/infrastructure/ai/drift_ai_task_repository.dart';
-import 'package:thinknest/core/infrastructure/database/thinknest_database.dart';
+import 'package:thinknest/core/infrastructure/database/thinknest_database.dart'
+    hide AiTask;
 import 'package:thinknest/core/infrastructure/sync/drift_sync_outbox_repository.dart';
 
 void main() {
