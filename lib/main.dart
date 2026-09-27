@@ -42,6 +42,7 @@ class ThinkNestApp extends StatelessWidget {
       if (mounted) setState(() => _syncing = false);
     }
   }
+
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
