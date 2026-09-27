@@ -1,4 +1,5 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:supabase_flutter/supabase_flutter.dart';
 
 import '../application/conversation/send_message.dart';
 import '../application/document/change_document_status.dart';
@@ -8,6 +9,7 @@ import '../application/export/share_implementation_pack.dart';
 import '../application/project/create_project.dart';
 import '../application/readiness/evaluate_readiness.dart';
 import '../domain/ai/ai_provider.dart';
+import '../domain/auth/auth_repository.dart';
 import '../domain/ai/ai_task_repository.dart';
 import '../domain/conversation/conversation_repository.dart';
 import '../domain/document/document.dart';
@@ -21,6 +23,8 @@ import '../infrastructure/document/drift_document_repository.dart';
 import '../infrastructure/database/thinknest_database.dart'
     hide Document, Project;
 import '../infrastructure/project/drift_project_repository.dart';
+import '../infrastructure/supabase/supabase_auth_repository.dart';
+import '../infrastructure/supabase/supabase_config.dart';
 
 final databaseProvider = Provider<ThinkNestDatabase>((ref) {
   final database = ThinkNestDatabase();
@@ -98,4 +102,16 @@ final projectsProvider = StreamProvider<List<Project>>((ref) {
 
 final createProjectProvider = Provider<CreateProject>((ref) {
   return CreateProject(ref.watch(projectRepositoryProvider));
+});
+
+final supabaseConfigProvider = Provider<SupabaseConfig>((ref) {
+  return SupabaseConfig.fromEnvironment;
+});
+
+final authRepositoryProvider = Provider<AuthRepository?>((ref) {
+  final config = ref.watch(supabaseConfigProvider);
+  if (!config.isValid) return null;
+  return SupabaseAuthRepository(
+    Supabase.instance.client,
+  );
 });
