@@ -53,7 +53,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
           SnackBar(
             content: Text(
               'Sincronização concluída: '
-              '\${result.pushed} enviados, \${result.pulled} recebidos.',
+              '${result.pushed} enviados, ${result.pulled} recebidos.',
             ),
           ),
         );
