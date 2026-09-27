@@ -40,6 +40,7 @@ class ConversationMessages extends Table {
   TextColumn get providerId => text().nullable()();
   TextColumn get model => text().nullable()();
   BoolColumn get isPending => boolean().withDefault(const Constant(false))();
+  DateTimeColumn get updatedAt => dateTime()();
 
   @override
   Set<Column> get primaryKey => {id};
@@ -54,6 +55,7 @@ class AiTasks extends Table {
   IntColumn get attempts => integer().withDefault(const Constant(0))();
   TextColumn get lastError => text().nullable()();
   DateTimeColumn get createdAt => dateTime()();
+  DateTimeColumn get updatedAt => dateTime()();
 
   @override
   Set<Column> get primaryKey => {id};
@@ -118,7 +120,7 @@ class ThinkNestDatabase extends _$ThinkNestDatabase {
       : super(executor ?? driftDatabase(name: 'thinknest'));
 
   @override
-  int get schemaVersion => 5;
+  int get schemaVersion => 6;
 
   @override
   MigrationStrategy get migration => MigrationStrategy(
@@ -136,6 +138,10 @@ class ThinkNestDatabase extends _$ThinkNestDatabase {
           }
           if (from < 5) {
             await m.createTable(syncOutboxEntries);
+          }
+          if (from < 6) {
+            await m.addColumn(conversationMessages, conversationMessages.updatedAt);
+            await m.addColumn(aiTasks, aiTasks.updatedAt);
           }
         },
       );
