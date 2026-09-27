@@ -36,6 +36,12 @@ jobs:
           set +e
           dart format --output=none --set-exit-if-changed lib test 2>&1 | tee dart-format.log
           status=${PIPESTATUS[0]}
+          if [ "$status" -ne 0 ]; then
+            git diff -- lib test
+            dart format lib test >/dev/null
+            echo "Formatter diff:"
+            git diff -- lib test
+          fi
           exit $status
 
       - name: Analyze
