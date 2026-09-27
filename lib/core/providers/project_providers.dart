@@ -104,7 +104,6 @@ final createProjectProvider = Provider<CreateProject>((ref) {
   return CreateProject(ref.watch(projectRepositoryProvider));
 });
 
-
 final supabaseConfigProvider = Provider<SupabaseConfig>((ref) {
   return SupabaseConfig.fromEnvironment;
 });
