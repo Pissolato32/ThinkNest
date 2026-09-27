@@ -150,7 +150,8 @@ class ThinkNestDatabase extends _$ThinkNestDatabase {
             await m.createTable(syncOutboxEntries);
           }
           if (from < 6) {
-            await m.addColumn(conversationMessages, conversationMessages.updatedAt);
+            await m.addColumn(
+                conversationMessages, conversationMessages.updatedAt);
             await m.addColumn(aiTasks, aiTasks.updatedAt);
           }
           if (from < 7) {
