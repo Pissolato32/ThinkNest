@@ -113,8 +113,7 @@ class DriftProjectRepository implements ProjectRepository {
       keyDecisions: (json['key_decisions'] as List)
           .map((item) => Map<String, Object?>.from(item as Map))
           .toList(),
-      openUncertainties:
-          List<String>.from(json['open_uncertainties'] as List),
+      openUncertainties: List<String>.from(json['open_uncertainties'] as List),
       knownRisks: List<String>.from(json['known_risks'] as List? ?? const []),
       specialistState:
           Map<String, Object?>.from(json['specialist_state'] as Map),
