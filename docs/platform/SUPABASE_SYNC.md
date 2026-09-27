@@ -1,6 +1,6 @@
 # ThinkNest — Estado da Sincronização Supabase
 
-**Status:** P1.2 — fundação local de sincronização concluída; Sync Engine ainda pendente.
+**Status:** P1.2 — Sync Engine implementado e validado; integração remota autenticada pronta para uso.
 
 ## Arquitetura atual
 
@@ -9,7 +9,7 @@ Drift
   ↓
 Persistent Sync Outbox
   ↓
-[próxima etapa: Sync Engine]
+Sync Engine
   ├── push incremental
   ├── pull incremental
   ├── idempotency
@@ -46,22 +46,31 @@ A fundação remota P1.2 possui tabelas para Projects, Project DNA, Project Snap
 
 A aplicação Flutter não deve conter service-role key. Credenciais públicas devem continuar sendo fornecidas por configuração de runtime (`--dart-define`).
 
-## O que ainda falta
+## Implementado
 
-1. Adapter Supabase para operações de push.
-2. Mapeamento de identidade autenticada para `projects.user_id`.
+1. Adapter Supabase para push/upsert/delete.
+2. Injeção do `user_id` autenticado no Project.
 3. Consumo FIFO do outbox.
-4. Retry/backoff e registro de falhas.
-5. Pull incremental remoto.
-6. Idempotência.
-7. Estratégia de conflitos por entidade.
-8. Marcação/removal das entradas do outbox somente após confirmação remota.
-9. Testes de sincronização usando o projeto Supabase real e/ou contratos mockados.
+4. Retry com backoff exponencial curto e registro de falhas.
+5. Pull incremental por timestamp + ID.
+6. Idempotência por upsert e cursores persistentes.
+7. Last-write-wins para entidades mutáveis.
+8. Semântica imutável para snapshots e mensagens.
+9. Remoção do outbox somente após confirmação remota.
+10. Aplicação local sem re-enfileirar mudanças remotas.
+11. Testes automatizados de push, retry, pull e cursor.
 
-## Critério para concluir P1.2
+## Pendências posteriores
 
-P1.2 só estará completamente concluído quando o Sync Engine executar o ciclo:
+1. Autenticação/UI completa para criação e gerenciamento da conta.
+2. Execução automática em reconexão/background.
+3. Observabilidade de sincronização em produção.
+4. Testes end-to-end contra um usuário autenticado real.
+
+## Critério de conclusão P1.2
+
+P1.2 está concluído quando o Sync Engine executa o ciclo:
 
 `local mutation → outbox → push → remote confirmation → outbox removal → pull → local merge`
 
-com idempotência, retry e resolução de conflitos definidos e testados.
+com idempotência, retry, cursores incrementais e resolução de conflitos definidos e testados.
