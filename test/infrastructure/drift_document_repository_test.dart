@@ -98,38 +98,37 @@ void main() {
     expect(versions.first.content, 'v2');
     expect(versions.last.content, 'v1');
   });
+
+  test('records document mutations in the sync outbox', () async {
+    final now = DateTime.utc(2026, 1, 1);
+    await database.into(database.projects).insert(
+          ProjectsCompanion.insert(
+            id: 'p1',
+            title: 'Projeto',
+            createdAt: now,
+            updatedAt: now,
+          ),
+        );
+  
+    final document = Document(
+      id: 'd1',
+      projectId: 'p1',
+      type: DocumentType.prd,
+      version: 1,
+      status: DocumentStatus.generated,
+      title: 'PRD',
+      content: '# PRD',
+      dnaVersion: 1,
+      createdAt: now,
+      updatedAt: now,
+    );
+  
+    await repository.create(document);
+    final entries = await outbox.watchPending().first;
+  
+    expect(entries, hasLength(1));
+    expect(entries.single.entityType, SyncEntityType.document);
+    expect(entries.single.entityId, 'd1');
+    expect(entries.single.operation, SyncOperation.upsert);
+  });
 }
-
-
-test('records document mutations in the sync outbox', () async {
-  final now = DateTime.utc(2026, 1, 1);
-  await database.into(database.projects).insert(
-        ProjectsCompanion.insert(
-          id: 'p1',
-          title: 'Projeto',
-          createdAt: now,
-          updatedAt: now,
-        ),
-      );
-
-  final document = Document(
-    id: 'd1',
-    projectId: 'p1',
-    type: DocumentType.prd,
-    version: 1,
-    status: DocumentStatus.generated,
-    title: 'PRD',
-    content: '# PRD',
-    dnaVersion: 1,
-    createdAt: now,
-    updatedAt: now,
-  );
-
-  await repository.create(document);
-  final entries = await outbox.watchPending().first;
-
-  expect(entries, hasLength(1));
-  expect(entries.single.entityType, SyncEntityType.document);
-  expect(entries.single.entityId, 'd1');
-  expect(entries.single.operation, SyncOperation.upsert);
-});
