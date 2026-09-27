@@ -147,7 +147,10 @@ final syncEngineProvider = Provider<SyncEngine?>((ref) {
     ref.watch(syncOutboxRepositoryProvider),
     remote,
     ref.watch(syncCursorRepositoryProvider),
-    DriftSyncApplier(ref.watch(databaseProvider)),
+    DriftSyncApplier(
+      ref.watch(databaseProvider),
+      ref.watch(syncOutboxRepositoryProvider),
+    ),
   );
 });
 
