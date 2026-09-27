@@ -7,7 +7,6 @@ import '../../domain/ai/ai_task.dart';
 import '../../domain/ai/ai_task_repository.dart';
 import '../../domain/conversation/conversation_message.dart';
 import '../../domain/conversation/conversation_repository.dart';
-import '../../domain/project/project_repository.dart';
 
 class SendMessage {
   SendMessage(
@@ -19,7 +18,6 @@ class SendMessage {
   }) : _uuid = uuid ?? const Uuid();
 
   final ConversationRepository _conversationRepository;
-  final ProjectRepository _projectRepository;
   final AiTaskWorker _worker;
   final AiTaskRepository _taskRepository;
   final Uuid _uuid;
