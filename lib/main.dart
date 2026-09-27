@@ -15,6 +15,33 @@ Future<void> main() async {
 class ThinkNestApp extends StatelessWidget {
   const ThinkNestApp({super.key});
 
+  Future<void> _sync() async {
+    final engine = ref.read(syncEngineProvider);
+    if (engine == null || _syncing) return;
+
+    setState(() => _syncing = true);
+    try {
+      final result = await engine.sync();
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text(
+              'Sincronização concluída: '
+              '\${result.pushed} enviados, \${result.pulled} recebidos.',
+            ),
+          ),
+        );
+      }
+    } catch (error) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('Sincronização não concluída: $error')),
+        );
+      }
+    } finally {
+      if (mounted) setState(() => _syncing = false);
+    }
+  }
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
@@ -39,6 +66,7 @@ class HomeScreen extends ConsumerStatefulWidget {
 class _HomeScreenState extends ConsumerState<HomeScreen> {
   final _controller = TextEditingController();
   bool _saving = false;
+  bool _syncing = false;
 
   @override
   void dispose() {
@@ -78,7 +106,27 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
     final projects = ref.watch(projectsProvider);
 
     return Scaffold(
-      appBar: AppBar(title: const Text('ThinkNest')),
+      appBar: AppBar(
+        title: const Text('ThinkNest'),
+        actions: [
+          IconButton(
+            tooltip: 'Sincronizar',
+            onPressed: ref.watch(syncEngineProvider) == null || _syncing
+                ? null
+                : _sync,
+            icon: _syncing
+                ? const Padding(
+                    padding: EdgeInsets.all(12),
+                    child: SizedBox(
+                      width: 16,
+                      height: 16,
+                      child: CircularProgressIndicator(strokeWidth: 2),
+                    ),
+                  )
+                : const Icon(Icons.sync),
+          ),
+        ],
+      ),
       body: SafeArea(
         child: Padding(
           padding: const EdgeInsets.all(24),
