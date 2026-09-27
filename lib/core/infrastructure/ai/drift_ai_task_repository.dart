@@ -67,6 +67,7 @@ class DriftAiTaskRepository implements AiTaskRepository {
   Future<void> _update(AiTask task) async {
     final row = await _find(task.id);
     if (row == null) return;
+    final updatedAt = DateTime.now().toUtc();
     await _database.transaction(() async {
       await (_database.update(_database.aiTasks)
             ..where((row) => row.id.equals(task.id)))
@@ -75,14 +76,18 @@ class DriftAiTaskRepository implements AiTaskRepository {
           status: Value(task.status.name.toUpperCase()),
           attempts: Value(task.attempts),
           lastError: Value(task.lastError),
-          updatedAt: Value(DateTime.now().toUtc()),
+          updatedAt: Value(updatedAt),
         ),
       );
-      await _record(task, row.payloadJson);
+      await _record(task, row.payloadJson, updatedAt: updatedAt);
     });
   }
 
-  Future<void> _record(AiTask task, String payloadJson) async {
+  Future<void> _record(
+    AiTask task,
+    String payloadJson, {
+    DateTime? updatedAt,
+  }) async {
     await _outbox?.enqueue(
       SyncOutboxEntry(
         id: _uuid.v4(),
@@ -97,9 +102,10 @@ class DriftAiTaskRepository implements AiTaskRepository {
           'last_error': task.lastError,
           'created_at': task.createdAt.toIso8601String(),
           'payload_json': jsonDecode(payloadJson),
-          'updated_at': DateTime.now().toUtc().toIso8601String(),
+          'updated_at':
+              (updatedAt ?? task.createdAt).toIso8601String(),
         }),
-        createdAt: task.createdAt,
+        createdAt: updatedAt ?? task.createdAt,
       ),
     );
   }
