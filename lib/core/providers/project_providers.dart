@@ -16,6 +16,7 @@ import '../domain/document/document.dart';
 import '../domain/document/document_repository.dart';
 import '../domain/project/project.dart';
 import '../domain/project/project_repository.dart';
+import '../domain/sync/sync_outbox_repository.dart';
 import '../infrastructure/ai/drift_ai_task_repository.dart';
 import '../infrastructure/ai/echo_provider.dart';
 import '../infrastructure/conversation/drift_conversation_repository.dart';
@@ -23,6 +24,7 @@ import '../infrastructure/document/drift_document_repository.dart';
 import '../infrastructure/database/thinknest_database.dart'
     hide Document, Project;
 import '../infrastructure/project/drift_project_repository.dart';
+import '../infrastructure/sync/drift_sync_outbox_repository.dart';
 import '../infrastructure/supabase/supabase_auth_repository.dart';
 import '../infrastructure/supabase/supabase_config.dart';
 
@@ -32,8 +34,15 @@ final databaseProvider = Provider<ThinkNestDatabase>((ref) {
   return database;
 });
 
+final syncOutboxRepositoryProvider = Provider<SyncOutboxRepository>((ref) {
+  return DriftSyncOutboxRepository(ref.watch(databaseProvider));
+});
+
 final projectRepositoryProvider = Provider<ProjectRepository>((ref) {
-  return DriftProjectRepository(ref.watch(databaseProvider));
+  return DriftProjectRepository(
+    ref.watch(databaseProvider),
+    outbox: ref.watch(syncOutboxRepositoryProvider),
+  );
 });
 
 final documentRepositoryProvider = Provider<DocumentRepository>((ref) {
