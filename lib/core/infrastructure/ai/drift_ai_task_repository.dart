@@ -55,7 +55,7 @@ class DriftAiTaskRepository implements AiTaskRepository {
       row,
       status: AiTaskStatus.pending,
       lastError: error,
-      attempts: 1,
+      attempts: row.attempts + 1,
     );
     await _update(task);
   }
