@@ -1,7 +1,6 @@
 import 'dart:async';
 
 import '../../domain/auth/auth_repository.dart';
-import '../../domain/sync/sync_cursor.dart';
 import '../../domain/sync/sync_cursor_repository.dart';
 import '../../domain/sync/sync_outbox_entry.dart';
 import '../../domain/sync/sync_outbox_repository.dart';
