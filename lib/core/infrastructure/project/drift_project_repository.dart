@@ -1,8 +1,7 @@
 import 'dart:convert';
 
-import 'package:uuid/uuid.dart';
-
 import 'package:drift/drift.dart';
+import 'package:uuid/uuid.dart';
 
 import '../../domain/project/project.dart' as domain;
 import '../../domain/project/project_dna.dart';
@@ -80,8 +79,9 @@ class DriftProjectRepository implements ProjectRepository {
 
   @override
   Future<void> delete(String id) async {
-      (_database.delete(_database.projects)..where((row) => row.id.equals(id)))
-          .go();
+    await (_database.delete(_database.projects)
+          ..where((row) => row.id.equals(id)))
+        .go();
     await _outbox?.enqueue(SyncOutboxEntry(
       id: _uuid.v4(), entityType: SyncEntityType.project, entityId: id,
       operation: SyncOperation.delete, payloadJson: jsonEncode({'id': id}),
