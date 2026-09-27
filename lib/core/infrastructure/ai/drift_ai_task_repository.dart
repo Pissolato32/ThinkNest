@@ -29,6 +29,7 @@ class DriftAiTaskRepository implements AiTaskRepository {
               lastError: Value(task.lastError),
               createdAt: task.createdAt,
               payloadJson: Value(payloadJson),
+              updatedAt: task.createdAt,
             ),
           );
       await _record(task, payloadJson);
@@ -74,6 +75,7 @@ class DriftAiTaskRepository implements AiTaskRepository {
           status: Value(task.status.name.toUpperCase()),
           attempts: Value(task.attempts),
           lastError: Value(task.lastError),
+          updatedAt: Value(DateTime.now().toUtc()),
         ),
       );
       await _record(task, row.payloadJson);
@@ -95,6 +97,7 @@ class DriftAiTaskRepository implements AiTaskRepository {
           'last_error': task.lastError,
           'created_at': task.createdAt.toIso8601String(),
           'payload_json': jsonDecode(payloadJson),
+          'updated_at': DateTime.now().toUtc().toIso8601String(),
         }),
         createdAt: task.createdAt,
       ),
