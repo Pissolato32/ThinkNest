@@ -34,7 +34,8 @@ class DriftSyncApplier {
   SyncCursor cursorFor(
     SyncEntityType entityType,
     Map<String, dynamic> row,
-  ) => SyncCursor(
+  ) =>
+      SyncCursor(
         entityType: entityType.name,
         lastTimestamp: DateTime.parse(
           row[_timestampColumn(entityType)] as String,
@@ -60,9 +61,9 @@ class DriftSyncApplier {
         isPinned: Value(row['is_pinned'] as bool),
         isArchived: Value(row['is_archived'] as bool),
         createdAt: DateTime.parse(row['created_at'] as String).toUtc(),
-        updatedAt: remoteUpdated,
-      ),
-    );
+            updatedAt: remoteUpdated,
+          ),
+        );
   }
 
   Future<void> _applyDna(Map<String, dynamic> row) async {
@@ -142,7 +143,9 @@ class DriftSyncApplier {
       isPending: Value(row['is_pending'] as bool),
       updatedAt: remoteUpdated,
     );
-    await _database.into(_database.conversationMessages).insertOnConflictUpdate(companion);
+    await _database
+        .into(_database.conversationMessages)
+        .insertOnConflictUpdate(companion);
   }
 
   Future<void> _applyAiTask(Map<String, dynamic> row) async {
@@ -153,7 +156,7 @@ class DriftSyncApplier {
         .getSingleOrNull();
     if (local != null && !remoteUpdated.isAfter(local.updatedAt)) return;
     await _database.into(_database.aiTasks).insertOnConflictUpdate(
-      db.AiTasksCompanion.insert(
+          db.AiTasksCompanion.insert(
         id: id,
         projectId: row['project_id'] as String,
         status: Value(row['status'] as String),
