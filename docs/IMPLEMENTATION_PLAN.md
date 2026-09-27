@@ -1,6 +1,6 @@
 # ThinkNest — Plano de Implementação
 
-**Status:** P0 concluído; P1.1 em implementação  
+**Status:** P0 concluído; P1.1 concluído; P1.2 em implementação  
 **Issue principal:** #5  
 **Fonte normativa:** `docs/`
 
@@ -171,9 +171,11 @@ Regras de implementação:
 
 **Saída:** identidade autenticada pode ser introduzida sem transformar o Supabase na fonte de verdade da UI.
 
+**P1.1 concluído:** projeto Supabase ThinkNest configurado, baseline remoto criada e RLS validado.
+
 ### P1.2 — Sincronização
-- [ ] Modelo de mudanças/outbox.
-- [ ] Sync queue persistente.
+- [x] Modelo de mudanças/outbox.
+- [x] Sync queue persistente.
 - [ ] Push/pull incremental.
 - [ ] Idempotência e conflito.
 - [ ] RLS por usuário/projeto.
