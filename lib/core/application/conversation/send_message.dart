@@ -36,9 +36,6 @@ class SendMessage {
         'A mensagem não pode estar vazia.',
       );
     }
-    final dna = await _projectRepository.getDna(projectId);
-    if (dna == null) throw StateError('Project DNA não encontrado.');
-
     final userMessage = ConversationMessage(
       id: _uuid.v4(),
       projectId: projectId,
