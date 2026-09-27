@@ -15,6 +15,32 @@ Future<void> main() async {
 class ThinkNestApp extends StatelessWidget {
   const ThinkNestApp({super.key});
 
+  @override
+  Widget build(BuildContext context) {
+    return MaterialApp(
+      title: 'ThinkNest',
+      debugShowCheckedModeBanner: false,
+      theme: ThemeData(
+        colorScheme: ColorScheme.fromSeed(seedColor: const Color(0xFF5B5CE2)),
+        useMaterial3: true,
+      ),
+      home: const HomeScreen(),
+    );
+  }
+}
+
+class HomeScreen extends ConsumerStatefulWidget {
+  const HomeScreen({super.key});
+
+  @override
+  ConsumerState<HomeScreen> createState() => _HomeScreenState();
+}
+
+class _HomeScreenState extends ConsumerState<HomeScreen> {
+  final _controller = TextEditingController();
+  bool _saving = false;
+  bool _syncing = false;
+
   Future<void> _sync() async {
     final engine = ref.read(syncEngineProvider);
     if (engine == null || _syncing) return;
@@ -42,31 +68,6 @@ class ThinkNestApp extends StatelessWidget {
       if (mounted) setState(() => _syncing = false);
     }
   }
-
-  @override
-  Widget build(BuildContext context) {
-    return MaterialApp(
-      title: 'ThinkNest',
-      debugShowCheckedModeBanner: false,
-      theme: ThemeData(
-        colorScheme: ColorScheme.fromSeed(seedColor: const Color(0xFF5B5CE2)),
-        useMaterial3: true,
-      ),
-      home: const HomeScreen(),
-    );
-  }
-}
-
-class HomeScreen extends ConsumerStatefulWidget {
-  const HomeScreen({super.key});
-
-  @override
-  ConsumerState<HomeScreen> createState() => _HomeScreenState();
-}
-
-class _HomeScreenState extends ConsumerState<HomeScreen> {
-  final _controller = TextEditingController();
-  bool _saving = false;
   bool _syncing = false;
 
   @override
