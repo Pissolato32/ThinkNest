@@ -2,7 +2,7 @@ import 'dart:convert';
 
 import 'package:uuid/uuid.dart';
 
-import '../../domain/ai/ai_provider.dart';
+import '../ai/ai_task_worker.dart';
 import '../../domain/ai/ai_task.dart';
 import '../../domain/ai/ai_task_repository.dart';
 import '../../domain/conversation/conversation_message.dart';
@@ -13,14 +13,14 @@ class SendMessage {
   SendMessage(
     this._conversationRepository,
     this._projectRepository,
-    this._provider,
-    this._taskRepository, {
+    this._taskRepository,
+    this._worker, {
     Uuid? uuid,
   }) : _uuid = uuid ?? const Uuid();
 
   final ConversationRepository _conversationRepository;
   final ProjectRepository _projectRepository;
-  final AiProvider _provider;
+  final AiTaskWorker _worker;
   final AiTaskRepository _taskRepository;
   final Uuid _uuid;
 
@@ -48,13 +48,6 @@ class SendMessage {
     );
     await _conversationRepository.addMessage(userMessage);
 
-    final messages =
-        await _conversationRepository.watchMessages(projectId).first;
-    final request = AiRequest(
-      projectId: projectId,
-      dna: dna,
-      messages: messages,
-    );
     final task = AiTask(
       id: _uuid.v4(),
       projectId: projectId,
@@ -68,24 +61,10 @@ class SendMessage {
       }),
     );
 
-    AiResponse response;
-    try {
-      response = await _provider.complete(request);
-      await _taskRepository.markCompleted(task.id);
-    } catch (error) {
-      await _taskRepository.markPending(task.id, error: error.toString());
-      rethrow;
+    final assistantMessage = await _worker.run(task);
+    if (assistantMessage == null) {
+      throw StateError('A AI Task não pôde ser executada.');
     }
-    final assistantMessage = ConversationMessage(
-      id: _uuid.v4(),
-      projectId: projectId,
-      role: ConversationMessageRole.assistant,
-      content: response.content,
-      createdAt: DateTime.now().toUtc(),
-      providerId: response.providerId,
-      model: response.model,
-    );
-    await _conversationRepository.addMessage(assistantMessage);
     return assistantMessage;
   }
 }
