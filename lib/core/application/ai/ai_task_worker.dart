@@ -31,12 +31,19 @@ class AiTaskWorker {
   bool _running = false;
 
   Future<void> start() async {
-    await drainPending();
+    await resume();
     _subscription ??= _connectivity.onConnectivityChanged.listen((results) {
       if (!results.contains(ConnectivityResult.none)) {
         unawaited(drainPending());
       }
     });
+  }
+
+  Future<void> resume() async {
+    final results = await _connectivity.checkConnectivity();
+    if (!results.contains(ConnectivityResult.none)) {
+      await drainPending();
+    }
   }
 
   Future<void> drainPending() async {
