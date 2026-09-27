@@ -22,7 +22,6 @@ void main() {
     await database.close();
   });
 
-
   test('increments attempts when a task is returned to pending', () async {
     final now = DateTime.utc(2026, 1, 1);
     await database.into(database.projects).insert(
