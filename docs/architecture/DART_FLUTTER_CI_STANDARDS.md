@@ -172,4 +172,159 @@ Não manter flags depreciadas/removidas apenas por hábito.
 ### 10.5 Diagnóstico obrigatório de testes
 
 O CI agora preserva `flutter-test.log` como artefato quando o pipeline falha. Isso evita depender apenas do resumo visual do Actions para descobrir qual teste falhou.
+## 11. Procedimento obrigatório para diagnóstico e correção de CI/CD
 
+Esta seção define o procedimento operacional padrão para qualquer falha de CI/CD. **Nenhuma alteração corretiva deve ser feita antes da análise do log da execução que falhou**, salvo quando a própria mensagem do usuário já fornecer o diagnóstico completo e verificável.
+
+### 11.1 Fluxo padrão
+
+O fluxo obrigatório é:
+
+1. **Identificar a execução**
+   - localizar o workflow/run correspondente ao commit ou PR;
+   - registrar run ID, commit SHA, status e conclusão;
+   - confirmar se a execução é da versão mais recente do branch/PR.
+
+2. **Identificar o primeiro estágio bloqueador**
+   - inspecionar os jobs e steps na ordem do workflow;
+   - localizar o primeiro step com `failure`;
+   - não tratar steps posteriores que foram `skipped` como causas.
+
+3. **Ler o log do estágio que falhou**
+   - obter o log completo ou o trecho relevante do step;
+   - identificar a mensagem de erro concreta;
+   - distinguir erro de código, formatação, dependência, geração, ambiente, infraestrutura ou configuração do CI.
+
+4. **Estabelecer a causa raiz**
+   - relacionar a mensagem do CI ao arquivo, linha, comando ou configuração afetada;
+   - quando o log apontar um arquivo específico, inspecionar a versão exata desse arquivo no commit que falhou;
+   - não substituir diagnóstico por tentativa e erro.
+
+5. **Aplicar a menor correção suficiente**
+   - alterar somente o que é necessário para eliminar a causa identificada;
+   - preservar comportamento e arquitetura não relacionados;
+   - não enfraquecer testes, quality gates ou regras do workflow para obter um CI verde.
+
+6. **Criar nova execução**
+   - commitar a correção;
+   - confirmar que o novo commit disparou um novo workflow;
+   - acompanhar novamente desde o primeiro estágio.
+
+7. **Repetir até verde**
+   - se o novo CI falhar, voltar obrigatoriamente ao passo 2;
+   - não presumir que a nova falha possui a mesma causa da anterior;
+   - somente depois de `format → analyze → test` verdes considerar a fatia validada.
+
+### 11.2 Regra de primeira falha
+
+A **primeira falha determinística na ordem do pipeline é o próximo problema a resolver**.
+
+Exemplo:
+
+- `Generate Drift code`: verde
+- `Verify formatting`: vermelho
+- `Analyze`: skipped
+- `Test`: skipped
+
+O problema a tratar é exclusivamente o formatter. Não se deve alterar código para resolver hipotéticos erros de `analyze` ou `test` antes de fazer o formatter passar.
+
+Outro exemplo:
+
+- `Verify formatting`: verde
+- `Analyze`: vermelho
+- `Test`: skipped
+
+Nesse caso, o log do `Analyze` deve ser analisado antes de qualquer alteração. Os testes ainda não constituem evidência de uma nova falha.
+
+### 11.3 Classificação do diagnóstico
+
+Antes da alteração, classificar a falha em uma destas categorias:
+
+| Categoria | Exemplos | Ação inicial |
+|---|---|---|
+| Formatting | `dart format`, arquivos `Changed` | executar formatter oficial |
+| Generation | Drift/build_runner | corrigir fonte/configuração e regenerar |
+| Dependencies | pub get, resolução de versão | revisar `pubspec`/lock e ambiente CI |
+| Analyze/Compile | imports, tipos, APIs, nullability | corrigir código conforme erro reportado |
+| Tests | assertion, lifecycle, fixture | analisar teste + contrato da funcionalidade |
+| Environment | Flutter/Dart/OS/toolchain | comparar versões e configuração do CI |
+| Infrastructure | runner, timeout, serviço externo | verificar se é falha transitória antes de alterar código |
+| Workflow | YAML, permissions, secrets, actions | corrigir configuração do pipeline |
+
+### 11.4 Evidência mínima antes de editar
+
+Uma alteração corretiva de CI deve ter, antes do commit:
+
+- [ ] run ID identificado;
+- [ ] commit SHA identificado;
+- [ ] primeiro step bloqueador identificado;
+- [ ] log do step consultado;
+- [ ] mensagem/erro concreto identificado;
+- [ ] arquivo/configuração afetada identificada quando possível;
+- [ ] causa classificada;
+- [ ] correção mínima definida.
+
+Se algum desses itens estiver indisponível, a ação padrão é **coletar mais evidência**, não editar por tentativa.
+
+### 11.5 Pós-correção
+
+Depois de uma correção:
+
+1. verificar o diff do commit;
+2. confirmar que a alteração corresponde ao diagnóstico;
+3. aguardar o novo CI;
+4. verificar novamente os steps;
+5. se passar, registrar o resultado;
+6. se falhar, iniciar um novo diagnóstico independente.
+
+**Não considerar um CI "provavelmente verde" porque a correção parece correta. O estado do workflow é a fonte de verdade.**
+
+### 11.6 Falhas repetidas do mesmo tipo
+
+Quando a mesma categoria de falha ocorre novamente:
+
+- comparar o log novo com o log anterior;
+- verificar se é exatamente o mesmo arquivo/comando;
+- não assumir que a primeira correção foi aplicada corretamente;
+- inspecionar o conteúdo efetivamente presente no novo SHA;
+- verificar se o formatter/toolchain utilizado localmente é o mesmo do CI.
+
+Se a mesma falha persistir após uma correção aparentemente adequada, investigar a diferença entre o estado efetivo do repositório e a alteração pretendida antes de realizar uma terceira alteração.
+
+### 11.7 Regra específica para formatter
+
+Quando o CI retornar algo como:
+
+`Changed <arquivo>`
+
+ou
+
+`Formatted N files (M changed)`
+
+a correção padrão é executar **o formatter oficial sobre o arquivo/conjunto afetado**, em vez de tentar reproduzir manualmente a formatação.
+
+Depois, verificar o conteúdo resultante e somente então criar o commit.
+
+### 11.8 Regra específica para logs
+
+O resumo visual do GitHub Actions não substitui o log do step.
+
+Para qualquer falha:
+
+`Workflow → Job → Step → Log → Causa → Correção → Novo Workflow`
+
+Essa cadeia deve ser seguida antes de considerar a falha resolvida.
+
+### 11.9 Critério para avançar
+
+Uma etapa de desenvolvimento somente pode avançar quando:
+
+- o CI da alteração atual estiver concluído;
+- `Generate Drift code`, quando aplicável, estiver verde;
+- `Verify formatting` estiver verde;
+- `Analyze` estiver verde;
+- `Test` estiver verde;
+- não houver uma falha conhecida ignorada;
+- o diff final corresponder ao objetivo da mudança.
+
+**CI verde é requisito de avanço, não apenas uma informação de status.**
