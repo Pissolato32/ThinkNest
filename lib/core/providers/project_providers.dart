@@ -46,7 +46,10 @@ final projectRepositoryProvider = Provider<ProjectRepository>((ref) {
 });
 
 final documentRepositoryProvider = Provider<DocumentRepository>((ref) {
-  return DriftDocumentRepository(ref.watch(databaseProvider));
+  return DriftDocumentRepository(
+    ref.watch(databaseProvider),
+    outbox: ref.watch(syncOutboxRepositoryProvider),
+  );
 });
 
 final generateDocumentProvider = Provider<GenerateDocument>((ref) {
@@ -87,11 +90,17 @@ final evaluateReadinessProvider = Provider<EvaluateReadiness>((ref) {
 });
 
 final conversationRepositoryProvider = Provider<ConversationRepository>((ref) {
-  return DriftConversationRepository(ref.watch(databaseProvider));
+  return DriftConversationRepository(
+    ref.watch(databaseProvider),
+    outbox: ref.watch(syncOutboxRepositoryProvider),
+  );
 });
 
 final aiTaskRepositoryProvider = Provider<AiTaskRepository>((ref) {
-  return DriftAiTaskRepository(ref.watch(databaseProvider));
+  return DriftAiTaskRepository(
+    ref.watch(databaseProvider),
+    outbox: ref.watch(syncOutboxRepositoryProvider),
+  );
 });
 
 final aiProvider = Provider<AiProvider>((ref) => const EchoProvider());
