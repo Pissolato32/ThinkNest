@@ -82,14 +82,16 @@ class DriftProjectRepository implements ProjectRepository {
     await (_database.delete(_database.projects)
           ..where((row) => row.id.equals(id)))
         .go();
-    await _outbox?.enqueue(SyncOutboxEntry(
+    await _outbox?.enqueue(
+      SyncOutboxEntry(
       id: _uuid.v4(),
       entityType: SyncEntityType.project,
       entityId: id,
       operation: SyncOperation.delete,
       payloadJson: jsonEncode({'id': id}),
-      createdAt: DateTime.now().toUtc(),
-    ));
+        createdAt: DateTime.now().toUtc(),
+      ),
+    );
   }
 
   @override
@@ -129,14 +131,16 @@ class DriftProjectRepository implements ProjectRepository {
         updatedAt: dna.updatedAt,
       ),
     );
-    await _outbox?.enqueue(SyncOutboxEntry(
+    await _outbox?.enqueue(
+      SyncOutboxEntry(
       id: _uuid.v4(),
       entityType: SyncEntityType.projectDna,
       entityId: dna.projectId,
       operation: SyncOperation.upsert,
       payloadJson: jsonEncode(dna.toJson()),
-      createdAt: dna.updatedAt,
-    ));
+        createdAt: dna.updatedAt,
+      ),
+    );
   }
 
   @override
@@ -152,7 +156,8 @@ class DriftProjectRepository implements ProjectRepository {
         dnaJson: snapshot.dnaJson,
       ),
     );
-    await _outbox?.enqueue(SyncOutboxEntry(
+    await _outbox?.enqueue(
+      SyncOutboxEntry(
       id: _uuid.v4(),
       entityType: SyncEntityType.projectSnapshot,
       entityId: snapshot.id,
@@ -166,15 +171,17 @@ class DriftProjectRepository implements ProjectRepository {
         'project_json': jsonDecode(snapshot.projectJson),
         'dna_json': jsonDecode(snapshot.dnaJson),
       }),
-      createdAt: snapshot.createdAt,
-    ));
+        createdAt: snapshot.createdAt,
+      ),
+    );
   }
 
   Future<void> _recordProject(
     domain.Project project,
     SyncOperation operation,
   ) async {
-    await _outbox?.enqueue(SyncOutboxEntry(
+    await _outbox?.enqueue(
+      SyncOutboxEntry(
       id: _uuid.v4(),
       entityType: SyncEntityType.project,
       entityId: project.id,
@@ -189,8 +196,9 @@ class DriftProjectRepository implements ProjectRepository {
         'created_at': project.createdAt.toIso8601String(),
         'updated_at': project.updatedAt.toIso8601String(),
       }),
-      createdAt: project.updatedAt,
-    ));
+        createdAt: project.updatedAt,
+      ),
+    );
   }
 
   domain.Project _fromRow(db.Project row) => domain.Project(
