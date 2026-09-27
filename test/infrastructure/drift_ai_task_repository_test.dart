@@ -22,6 +22,37 @@ void main() {
     await database.close();
   });
 
+
+  test('increments attempts when a task is returned to pending', () async {
+    final now = DateTime.utc(2026, 1, 1);
+    await database.into(database.projects).insert(
+          ProjectsCompanion.insert(
+            id: 'p1',
+            title: 'Projeto',
+            createdAt: now,
+            updatedAt: now,
+          ),
+        );
+
+    final task = AiTask(
+      id: 't2',
+      projectId: 'p1',
+      createdAt: now,
+      attempts: 2,
+    );
+
+    await repository.enqueue(task, payloadJson: '{"kind":"retry"}');
+    await repository.markPending(task.id, error: 'temporary failure');
+
+    final row = await (database.select(database.aiTasks)
+          ..where((item) => item.id.equals(task.id)))
+        .getSingle();
+
+    expect(row.attempts, 3);
+    expect(row.status, 'PENDING');
+    expect(row.lastError, 'temporary failure');
+  });
+
   test('records AI task enqueue and completion in the sync outbox', () async {
     final now = DateTime.utc(2026, 1, 1);
     await database.into(database.projects).insert(
