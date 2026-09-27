@@ -156,21 +156,22 @@ class DriftProjectRepository implements ProjectRepository {
         dnaJson: snapshot.dnaJson,
       ),
     );
+    final payload = <String, Object?>{
+      'id': snapshot.id,
+      'project_id': snapshot.projectId,
+      'project_version': snapshot.projectVersion,
+      'created_at': snapshot.createdAt.toIso8601String(),
+      'reason': snapshot.reason,
+      'project_json': jsonDecode(snapshot.projectJson),
+      'dna_json': jsonDecode(snapshot.dnaJson),
+    };
     await _outbox?.enqueue(
       SyncOutboxEntry(
         id: _uuid.v4(),
         entityType: SyncEntityType.projectSnapshot,
         entityId: snapshot.id,
         operation: SyncOperation.upsert,
-        payloadJson: jsonEncode({
-          'id': snapshot.id,
-          'project_id': snapshot.projectId,
-          'project_version': snapshot.projectVersion,
-          'created_at': snapshot.createdAt.toIso8601String(),
-          'reason': snapshot.reason,
-          'project_json': jsonDecode(snapshot.projectJson),
-          'dna_json': jsonDecode(snapshot.dnaJson),
-        }),
+        payloadJson: jsonEncode(payload),
         createdAt: snapshot.createdAt,
       ),
     );
@@ -180,22 +181,23 @@ class DriftProjectRepository implements ProjectRepository {
     domain.Project project,
     SyncOperation operation,
   ) async {
+    final payload = <String, Object?>{
+      'id': project.id,
+      'title': project.title,
+      'category': project.category,
+      'maturity_level': project.maturity.name.toUpperCase(),
+      'is_pinned': project.isPinned,
+      'is_archived': project.isArchived,
+      'created_at': project.createdAt.toIso8601String(),
+      'updated_at': project.updatedAt.toIso8601String(),
+    };
     await _outbox?.enqueue(
       SyncOutboxEntry(
         id: _uuid.v4(),
         entityType: SyncEntityType.project,
         entityId: project.id,
         operation: operation,
-        payloadJson: jsonEncode({
-          'id': project.id,
-          'title': project.title,
-          'category': project.category,
-          'maturity_level': project.maturity.name.toUpperCase(),
-          'is_pinned': project.isPinned,
-          'is_archived': project.isArchived,
-          'created_at': project.createdAt.toIso8601String(),
-          'updated_at': project.updatedAt.toIso8601String(),
-        }),
+        payloadJson: jsonEncode(payload),
         createdAt: project.updatedAt,
       ),
     );
