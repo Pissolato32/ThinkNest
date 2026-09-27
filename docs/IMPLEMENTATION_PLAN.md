@@ -1,6 +1,6 @@
 # ThinkNest — Plano de Implementação
 
-**Status:** EXECUÇÃO P0 — P0.1–P0.7 concluídos; P0.8 em implementação  
+**Status:** P0 concluído; P1.1 em implementação  
 **Issue principal:** #5  
 **Fonte normativa:** `docs/`
 
@@ -158,6 +158,46 @@ Regras de implementação:
 - em falhas de CI, capturar a saída da etapa que falhou antes de fazer novas alterações.
 
 ## P1 — Plataforma
+
+### P1.1 — Auth Foundation
+- [x] Dependência `supabase_flutter` estável compatível com o baseline Dart.
+- [x] Configuração por `SUPABASE_URL` + `SUPABASE_PUBLISHABLE_KEY` via `--dart-define`.
+- [x] Inicialização opcional: credenciais ausentes não bloqueiam o modo offline.
+- [x] Contrato de domínio `AuthRepository` independente do Supabase.
+- [x] Adapter Supabase para sessão, login por e-mail/senha, observação de sessão e logout.
+- [x] Testes do contrato provider-neutral.
+- [ ] Projeto Supabase configurado e validado com integração remota.
+- [ ] Persistência/sincronização de Projects, DNA, Documents e Snapshots.
+
+**Saída:** identidade autenticada pode ser introduzida sem transformar o Supabase na fonte de verdade da UI.
+
+### P1.2 — Sincronização
+- [ ] Modelo de mudanças/outbox.
+- [ ] Sync queue persistente.
+- [ ] Push/pull incremental.
+- [ ] Idempotência e conflito.
+- [ ] RLS por usuário/projeto.
+
+### P1.3 — AI Task Queue Cloud
+- [ ] sincronização das AI tasks persistentes.
+- [ ] retomada automática após reconexão.
+- [ ] estado de execução e falhas observáveis.
+
+### P1.4 — Voz
+- [ ] captura local.
+- [ ] transcrição imediata.
+- [ ] refinamento assíncrono.
+
+### P1.5 — Segurança e observabilidade
+- [ ] auditoria.
+- [ ] métricas/logs.
+- [ ] políticas de segurança e ambientes.
+
+### P1.6 — CI/CD avançado
+- [ ] deploy.
+- [ ] ambientes.
+- [ ] promoção entre ambientes.
+
 - Supabase/Auth.
 - sincronização.
 - fila persistente de AI tasks.
