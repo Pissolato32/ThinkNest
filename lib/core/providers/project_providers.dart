@@ -8,6 +8,7 @@ import '../application/export/build_implementation_pack.dart';
 import '../application/export/share_implementation_pack.dart';
 import '../application/project/create_project.dart';
 import '../application/readiness/evaluate_readiness.dart';
+import '../application/sync/sync_engine.dart';
 import '../domain/ai/ai_provider.dart';
 import '../domain/auth/auth_repository.dart';
 import '../domain/ai/ai_task_repository.dart';
@@ -16,7 +17,9 @@ import '../domain/document/document.dart';
 import '../domain/document/document_repository.dart';
 import '../domain/project/project.dart';
 import '../domain/project/project_repository.dart';
+import '../domain/sync/sync_cursor_repository.dart';
 import '../domain/sync/sync_outbox_repository.dart';
+import '../domain/sync/sync_remote_repository.dart';
 import '../infrastructure/ai/drift_ai_task_repository.dart';
 import '../infrastructure/ai/echo_provider.dart';
 import '../infrastructure/conversation/drift_conversation_repository.dart';
@@ -24,7 +27,10 @@ import '../infrastructure/document/drift_document_repository.dart';
 import '../infrastructure/database/thinknest_database.dart'
     hide Document, Project;
 import '../infrastructure/project/drift_project_repository.dart';
+import '../infrastructure/sync/drift_sync_applier.dart';
+import '../infrastructure/sync/drift_sync_cursor_repository.dart';
 import '../infrastructure/sync/drift_sync_outbox_repository.dart';
+import '../infrastructure/sync/supabase_sync_remote_repository.dart';
 import '../infrastructure/supabase/supabase_auth_repository.dart';
 import '../infrastructure/supabase/supabase_config.dart';
 
@@ -120,6 +126,29 @@ final projectsProvider = StreamProvider<List<Project>>((ref) {
 
 final createProjectProvider = Provider<CreateProject>((ref) {
   return CreateProject(ref.watch(projectRepositoryProvider));
+});
+
+final syncCursorRepositoryProvider = Provider<SyncCursorRepository>((ref) {
+  return DriftSyncCursorRepository(ref.watch(databaseProvider));
+});
+
+final syncRemoteRepositoryProvider = Provider<SyncRemoteRepository?>((ref) {
+  final config = ref.watch(supabaseConfigProvider);
+  if (!config.isValid) return null;
+  return SupabaseSyncRemoteRepository(Supabase.instance.client);
+});
+
+final syncEngineProvider = Provider<SyncEngine?>((ref) {
+  final auth = ref.watch(authRepositoryProvider);
+  final remote = ref.watch(syncRemoteRepositoryProvider);
+  if (auth == null || remote == null) return null;
+  return SyncEngine(
+    auth,
+    ref.watch(syncOutboxRepositoryProvider),
+    remote,
+    ref.watch(syncCursorRepositoryProvider),
+    DriftSyncApplier(ref.watch(databaseProvider)),
+  );
 });
 
 final supabaseConfigProvider = Provider<SupabaseConfig>((ref) {
