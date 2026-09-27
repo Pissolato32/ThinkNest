@@ -92,8 +92,7 @@ void main() {
     expect(entry, isEmpty);
   });
 
-  test(
-      'pulls a newer remote project and discards stale local outbox work',
+  test('pulls a newer remote project and discards stale local outbox work',
       () async {
     await database.upsertProject(
       ProjectsCompanion.insert(
@@ -151,9 +150,7 @@ void main() {
     expect(await outbox.watchPending().first, isEmpty);
   });
 
-  test(
-      'pulls conversation messages using their mutation timestamp',
-      () async {
+  test('pulls conversation messages using their mutation timestamp', () async {
     await database.upsertProject(
       ProjectsCompanion.insert(
         id: 'p1',
