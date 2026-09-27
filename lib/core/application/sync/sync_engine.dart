@@ -27,7 +27,8 @@ class SyncEngine {
   Future<SyncResult> sync() async {
     final session = _authRepository.currentSession;
     if (session == null || session.isExpired) {
-      throw StateError('Uma sessão autenticada válida é necessária para sincronizar.');
+      throw StateError(
+          'Uma sessão autenticada válida é necessária para sincronizar.');
     }
 
     final pushResult = await _push(session.userId);
