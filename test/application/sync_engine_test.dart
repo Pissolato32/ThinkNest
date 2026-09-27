@@ -1,3 +1,4 @@
+import 'package:drift/drift.dart';
 import 'package:drift/native.dart';
 import 'package:flutter_test/flutter_test.dart';
 
@@ -153,6 +154,18 @@ void main() {
   test(
       'pulls conversation messages using their mutation timestamp',
       () async {
+    await database.upsertProject(
+      ProjectsCompanion.insert(
+        id: 'p1',
+        title: 'Projeto',
+        maturityLevel: const Value('CAPTURED'),
+        isPinned: const Value(false),
+        isArchived: const Value(false),
+        createdAt: DateTime.utc(2026, 1, 1),
+        updatedAt: DateTime.utc(2026, 1, 1),
+      ),
+    );
+
     final remote = FakeSyncRemoteRepository(
       remoteRows: {
         SyncEntityType.conversationMessage: [
