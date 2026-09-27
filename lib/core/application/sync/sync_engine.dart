@@ -6,8 +6,8 @@ import '../../domain/sync/sync_cursor_repository.dart';
 import '../../domain/sync/sync_outbox_entry.dart';
 import '../../domain/sync/sync_outbox_repository.dart';
 import '../../domain/sync/sync_remote_repository.dart';
-import 'drift_sync_applier.dart';
-import 'sync_result.dart';
+import '../../domain/sync/sync_result.dart';
+import '../../infrastructure/sync/drift_sync_applier.dart';
 
 class SyncEngine {
   SyncEngine(
