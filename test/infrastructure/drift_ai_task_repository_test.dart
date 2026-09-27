@@ -42,6 +42,7 @@ void main() {
     );
 
     await repository.enqueue(task, payloadJson: '{"kind":"retry"}');
+    await repository.markRunning(task.id);
     await repository.markPending(task.id, error: 'temporary failure');
 
     final row = await (database.select(database.aiTasks)
