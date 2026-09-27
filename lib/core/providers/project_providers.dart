@@ -1,6 +1,7 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 
+import '../application/ai/ai_task_worker.dart';
 import '../application/conversation/send_message.dart';
 import '../application/document/change_document_status.dart';
 import '../application/document/generate_document.dart';
@@ -111,12 +112,24 @@ final aiTaskRepositoryProvider = Provider<AiTaskRepository>((ref) {
 
 final aiProvider = Provider<AiProvider>((ref) => const EchoProvider());
 
-final sendMessageProvider = Provider<SendMessage>((ref) {
-  return SendMessage(
+final aiTaskWorkerProvider = Provider<AiTaskWorker>((ref) {
+  final worker = AiTaskWorker(
+    ref.watch(aiTaskRepositoryProvider),
     ref.watch(conversationRepositoryProvider),
     ref.watch(projectRepositoryProvider),
     ref.watch(aiProvider),
+  );
+  ref.onDispose(() {
+    worker.dispose();
+  });
+  return worker;
+});
+
+final sendMessageProvider = Provider<SendMessage>((ref) {
+  return SendMessage(
+    ref.watch(conversationRepositoryProvider),
     ref.watch(aiTaskRepositoryProvider),
+    ref.watch(aiTaskWorkerProvider),
   );
 });
 
