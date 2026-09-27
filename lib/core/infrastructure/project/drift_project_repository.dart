@@ -84,11 +84,11 @@ class DriftProjectRepository implements ProjectRepository {
         .go();
     await _outbox?.enqueue(
       SyncOutboxEntry(
-      id: _uuid.v4(),
-      entityType: SyncEntityType.project,
-      entityId: id,
-      operation: SyncOperation.delete,
-      payloadJson: jsonEncode({'id': id}),
+        id: _uuid.v4(),
+        entityType: SyncEntityType.project,
+        entityId: id,
+        operation: SyncOperation.delete,
+        payloadJson: jsonEncode({'id': id}),
         createdAt: DateTime.now().toUtc(),
       ),
     );
@@ -133,11 +133,11 @@ class DriftProjectRepository implements ProjectRepository {
     );
     await _outbox?.enqueue(
       SyncOutboxEntry(
-      id: _uuid.v4(),
-      entityType: SyncEntityType.projectDna,
-      entityId: dna.projectId,
-      operation: SyncOperation.upsert,
-      payloadJson: jsonEncode(dna.toJson()),
+        id: _uuid.v4(),
+        entityType: SyncEntityType.projectDna,
+        entityId: dna.projectId,
+        operation: SyncOperation.upsert,
+        payloadJson: jsonEncode(dna.toJson()),
         createdAt: dna.updatedAt,
       ),
     );
@@ -158,11 +158,11 @@ class DriftProjectRepository implements ProjectRepository {
     );
     await _outbox?.enqueue(
       SyncOutboxEntry(
-      id: _uuid.v4(),
-      entityType: SyncEntityType.projectSnapshot,
-      entityId: snapshot.id,
-      operation: SyncOperation.upsert,
-      payloadJson: jsonEncode({
+        id: _uuid.v4(),
+        entityType: SyncEntityType.projectSnapshot,
+        entityId: snapshot.id,
+        operation: SyncOperation.upsert,
+        payloadJson: jsonEncode({
         'id': snapshot.id,
         'project_id': snapshot.projectId,
         'project_version': snapshot.projectVersion,
@@ -182,11 +182,11 @@ class DriftProjectRepository implements ProjectRepository {
   ) async {
     await _outbox?.enqueue(
       SyncOutboxEntry(
-      id: _uuid.v4(),
-      entityType: SyncEntityType.project,
-      entityId: project.id,
-      operation: operation,
-      payloadJson: jsonEncode({
+        id: _uuid.v4(),
+        entityType: SyncEntityType.project,
+        entityId: project.id,
+        operation: operation,
+        payloadJson: jsonEncode({
         'id': project.id,
         'title': project.title,
         'category': project.category,
