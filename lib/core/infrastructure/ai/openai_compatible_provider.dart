@@ -10,12 +10,14 @@ class OpenAiCompatibleProvider implements AiProvider {
     required this.baseUrl,
     required this.apiKey,
     this.providerId = 'openai-compatible',
+    this.defaultModel = 'default',
     http.Client? client,
   }) : _client = client ?? http.Client();
 
   final String baseUrl;
   final String apiKey;
   final String providerId;
+  final String defaultModel;
   final http.Client _client;
 
   @override
@@ -82,7 +84,7 @@ class OpenAiCompatibleProvider implements AiProvider {
   }
 
   Map<String, dynamic> _body(AiRequest request, {required bool stream}) => {
-        'model': request.model ?? 'default',
+        'model': request.model ?? defaultModel,
         'temperature': request.temperature,
         'stream': stream,
         'messages': [
