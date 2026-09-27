@@ -61,9 +61,9 @@ class DriftSyncApplier {
         isPinned: Value(row['is_pinned'] as bool),
         isArchived: Value(row['is_archived'] as bool),
         createdAt: DateTime.parse(row['created_at'] as String).toUtc(),
-            updatedAt: remoteUpdated,
-          ),
-        );
+        updatedAt: remoteUpdated,
+      ),
+    );
   }
 
   Future<void> _applyDna(Map<String, dynamic> row) async {
