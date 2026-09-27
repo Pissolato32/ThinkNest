@@ -60,8 +60,7 @@ class DriftAiTaskRepository implements AiTaskRepository {
   }
 
   Future<db.AiTask?> _find(String id) =>
-      (_database.select(_database.aiTasks)
-            ..where((row) => row.id.equals(id)))
+      (_database.select(_database.aiTasks)..where((row) => row.id.equals(id)))
           .getSingleOrNull();
 
   Future<void> _update(AiTask task) async {
