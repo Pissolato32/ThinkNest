@@ -1,6 +1,6 @@
 # ThinkNest — Plano de Implementação
 
-**Status:** P0 concluído; P1.1 concluído; P1.2 em implementação  
+**Status:** P0 concluído; P1.1 concluído; P1.2 concluído  
 **Issue principal:** #5  
 **Fonte normativa:** `docs/`
 
@@ -166,8 +166,8 @@ Regras de implementação:
 - [x] Contrato de domínio `AuthRepository` independente do Supabase.
 - [x] Adapter Supabase para sessão, login por e-mail/senha, observação de sessão e logout.
 - [x] Testes do contrato provider-neutral.
-- [ ] Projeto Supabase configurado e validado com integração remota.
-- [ ] Persistência/sincronização de Projects, DNA, Documents e Snapshots.
+- [x] Projeto Supabase configurado e schema/RLS/Data API validados.
+- [x] Persistência/sincronização de Projects, DNA, Documents e Snapshots.
 
 **Saída:** identidade autenticada pode ser introduzida sem transformar o Supabase na fonte de verdade da UI.
 
@@ -184,7 +184,7 @@ Regras de implementação:
 
 **P1.2 concluído:** o ciclo local `mutation → outbox → push → remote confirmation → pull → local merge` está implementado com retry/backoff, cursores incrementais, last-write-wins para entidades mutáveis e semântica imutável para snapshots/mensagens. O acesso remoto é protegido por RLS e os privilégios do Data API para `authenticated` foram verificados.
 
-**Estado desta etapa:** a camada local produz mudanças persistentes para todos os agregados sincronizáveis. Ainda não existe um Sync Engine responsável por push/pull remoto; portanto, o outbox permanece como fonte local de mudanças pendentes.
+**Estado desta etapa:** o Sync Engine executa push/pull incremental, retry/backoff, cursores persistentes e merge local com resolução determinística de conflitos. A validação remota autenticada de ponta a ponta continua como etapa de integração, não como requisito para o núcleo offline-first.
 
 ### P1.3 — AI Task Queue Cloud
 - [ ] sincronização das AI tasks persistentes.
