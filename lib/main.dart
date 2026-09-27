@@ -68,7 +68,6 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
       if (mounted) setState(() => _syncing = false);
     }
   }
-  bool _syncing = false;
 
   @override
   void dispose() {
