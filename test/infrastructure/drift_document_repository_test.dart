@@ -3,15 +3,19 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:thinknest/core/domain/document/document.dart';
 import 'package:thinknest/core/infrastructure/database/thinknest_database.dart'
     hide Document;
+import 'package:thinknest/core/domain/sync/sync_outbox_entry.dart';
 import 'package:thinknest/core/infrastructure/document/drift_document_repository.dart';
+import 'package:thinknest/core/infrastructure/sync/drift_sync_outbox_repository.dart';
 
 void main() {
   late ThinkNestDatabase database;
   late DriftDocumentRepository repository;
+  late DriftSyncOutboxRepository outbox;
 
   setUp(() {
     database = ThinkNestDatabase(NativeDatabase.memory());
-    repository = DriftDocumentRepository(database);
+    outbox = DriftSyncOutboxRepository(database);
+    repository = DriftDocumentRepository(database, outbox: outbox);
   });
 
   tearDown(() async {
@@ -95,3 +99,37 @@ void main() {
     expect(versions.last.content, 'v1');
   });
 }
+
+
+test('records document mutations in the sync outbox', () async {
+  final now = DateTime.utc(2026, 1, 1);
+  await database.into(database.projects).insert(
+        ProjectsCompanion.insert(
+          id: 'p1',
+          title: 'Projeto',
+          createdAt: now,
+          updatedAt: now,
+        ),
+      );
+
+  final document = Document(
+    id: 'd1',
+    projectId: 'p1',
+    type: DocumentType.prd,
+    version: 1,
+    status: DocumentStatus.generated,
+    title: 'PRD',
+    content: '# PRD',
+    dnaVersion: 1,
+    createdAt: now,
+    updatedAt: now,
+  );
+
+  await repository.create(document);
+  final entries = await outbox.watchPending().first;
+
+  expect(entries, hasLength(1));
+  expect(entries.single.entityType, SyncEntityType.document);
+  expect(entries.single.entityId, 'd1');
+  expect(entries.single.operation, SyncOperation.upsert);
+});
