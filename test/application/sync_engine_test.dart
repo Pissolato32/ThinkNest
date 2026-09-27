@@ -195,8 +195,10 @@ void main() {
     final result = await engine.sync();
 
     expect(result.pulled, 1);
-    expect(await cursors.get(SyncEntityType.conversationMessage.name),
-        isNotNull);
+    expect(
+      await cursors.get(SyncEntityType.conversationMessage.name),
+      isNotNull,
+    );
   });
 
   test(
