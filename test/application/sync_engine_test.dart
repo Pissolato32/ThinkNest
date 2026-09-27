@@ -90,7 +90,8 @@ void main() {
     expect(entry, isEmpty);
   });
 
-  test('pulls remote project and advances its cursor without creating outbox work',
+  test(
+      'pulls remote project and advances its cursor without creating outbox work',
       () async {
     final remote = FakeSyncRemoteRepository(
       remoteRows: {
@@ -198,7 +199,8 @@ class FakeSyncRemoteRepository implements SyncRemoteRepository {
       if (last == null) return true;
       if (timestamp.isAfter(last)) return true;
       if (!timestamp.isAtSameMomentAs(last)) return false;
-      return cursor.lastEntityId == null || id.compareTo(cursor.lastEntityId!) > 0;
+      return cursor.lastEntityId == null ||
+          id.compareTo(cursor.lastEntityId!) > 0;
     }).toList();
   }
 
