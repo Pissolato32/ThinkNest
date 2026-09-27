@@ -47,23 +47,25 @@ class SupabaseSyncRemoteRepository implements SyncRemoteRepository {
   ) async {
     final table = _table(entityType);
     final timestampColumn = _timestampColumn(entityType);
+    final idColumn = _idColumn(entityType);
     var query = _client.from(table).select();
+
     if (cursor?.lastTimestamp != null) {
-      query = query.gte(
-        timestampColumn,
-        cursor!.lastTimestamp!.toIso8601String(),
-      );
+      final timestamp = cursor!.lastTimestamp!.toIso8601String();
+      final lastId = cursor.lastEntityId;
+      final afterTimestamp = '$timestampColumn.gt.$timestamp';
+      final sameTimestamp = lastId == null
+          ? '$timestampColumn.eq.$timestamp'
+          : 'and($timestampColumn.eq.$timestamp,$idColumn.gt.$lastId)';
+      query = query.or('$afterTimestamp,$sameTimestamp');
     }
 
     final rows = await query
         .order(timestampColumn, ascending: true)
-        .order('id', ascending: true)
+        .order(idColumn, ascending: true)
         .limit(500);
 
-    return rows
-        .map((row) => Map<String, dynamic>.from(row))
-        .where((row) => _isAfterCursor(row, cursor, timestampColumn))
-        .toList();
+    return rows.map((row) => Map<String, dynamic>.from(row)).toList();
   }
 
   Map<String, dynamic> _normalizePayload(
@@ -113,4 +115,7 @@ class SupabaseSyncRemoteRepository implements SyncRemoteRepository {
         SyncEntityType.conversationMessage => 'updated_at',
         SyncEntityType.aiTask => 'updated_at',
       };
+
+  String _idColumn(SyncEntityType type) =>
+      type == SyncEntityType.projectDna ? 'project_id' : 'id';
 }
