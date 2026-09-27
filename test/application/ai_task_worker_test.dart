@@ -36,7 +36,7 @@ void main() {
     final now = DateTime.utc(2026, 1, 1);
     const projectId = 'p1';
     await projects.create(
-      const Project(
+      Project(
         id: projectId,
         title: 'Projeto',
         createdAt: now,
@@ -49,7 +49,7 @@ void main() {
       ),
     );
 
-    const userMessage = ConversationMessage(
+    final userMessage = ConversationMessage(
       id: 'm1',
       projectId: projectId,
       role: ConversationMessageRole.user,
