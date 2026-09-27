@@ -102,8 +102,7 @@ class DriftAiTaskRepository implements AiTaskRepository {
           'last_error': task.lastError,
           'created_at': task.createdAt.toIso8601String(),
           'payload_json': jsonDecode(payloadJson),
-          'updated_at':
-              (updatedAt ?? task.createdAt).toIso8601String(),
+          'updated_at': (updatedAt ?? task.createdAt).toIso8601String(),
         }),
         createdAt: updatedAt ?? task.createdAt,
       ),
