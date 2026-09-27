@@ -47,19 +47,18 @@ class SupabaseSyncRemoteRepository implements SyncRemoteRepository {
   ) async {
     final table = _table(entityType);
     final timestampColumn = _timestampColumn(entityType);
-    final query = _client
-        .from(table)
-        .select()
+    var query = _client.from(table).select();
+    if (cursor?.lastTimestamp != null) {
+      query = query.gte(
+        timestampColumn,
+        cursor!.lastTimestamp!.toIso8601String(),
+      );
+    }
+
+    final rows = await query
         .order(timestampColumn, ascending: true)
         .order('id', ascending: true)
         .limit(500);
-
-    final rows = cursor?.lastTimestamp == null
-        ? await query
-        : await query.gte(
-            timestampColumn,
-            cursor!.lastTimestamp!.toIso8601String(),
-          );
 
     return rows
         .map((row) => Map<String, dynamic>.from(row))
