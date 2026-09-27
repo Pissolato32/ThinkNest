@@ -61,19 +61,19 @@ class DriftProjectRepository implements ProjectRepository {
   @override
   Future<void> update(domain.Project project) async {
     await _database.upsertProject(
-        db.ProjectsCompanion.insert(
-          id: project.id,
-          title: project.title,
-          category: project.category == null
-              ? const Value.absent()
-              : Value(project.category),
-          maturityLevel: Value(project.maturity.name.toUpperCase()),
-          isPinned: Value(project.isPinned),
-          isArchived: Value(project.isArchived),
-          createdAt: project.createdAt,
-          updatedAt: project.updatedAt,
-        ),
-      );
+      db.ProjectsCompanion.insert(
+        id: project.id,
+        title: project.title,
+        category: project.category == null
+            ? const Value.absent()
+            : Value(project.category),
+        maturityLevel: Value(project.maturity.name.toUpperCase()),
+        isPinned: Value(project.isPinned),
+        isArchived: Value(project.isArchived),
+        createdAt: project.createdAt,
+        updatedAt: project.updatedAt,
+      ),
+    );
     await _recordProject(project, SyncOperation.upsert);
   }
 
@@ -83,8 +83,11 @@ class DriftProjectRepository implements ProjectRepository {
           ..where((row) => row.id.equals(id)))
         .go();
     await _outbox?.enqueue(SyncOutboxEntry(
-      id: _uuid.v4(), entityType: SyncEntityType.project, entityId: id,
-      operation: SyncOperation.delete, payloadJson: jsonEncode({'id': id}),
+      id: _uuid.v4(),
+      entityType: SyncEntityType.project,
+      entityId: id,
+      operation: SyncOperation.delete,
+      payloadJson: jsonEncode({'id': id}),
       createdAt: DateTime.now().toUtc(),
     ));
   }
@@ -108,7 +111,8 @@ class DriftProjectRepository implements ProjectRepository {
       keyDecisions: (json['key_decisions'] as List)
           .map((item) => Map<String, Object?>.from(item as Map))
           .toList(),
-      openUncertainties: List<String>.from(json['open_uncertainties'] as List),
+      openUncertainties:
+          List<String>.from(json['open_uncertainties'] as List),
       knownRisks: List<String>.from(json['known_risks'] as List? ?? const []),
       specialistState:
           Map<String, Object?>.from(json['specialist_state'] as Map),
@@ -118,16 +122,19 @@ class DriftProjectRepository implements ProjectRepository {
   @override
   Future<void> saveDna(ProjectDna dna) async {
     await _database.upsertDna(
-        db.ProjectDnaRowsCompanion.insert(
-          projectId: dna.projectId,
-          version: Value(dna.version),
-          dnaJson: jsonEncode(dna.toJson()),
-          updatedAt: dna.updatedAt,
-        ),
-      );
+      db.ProjectDnaRowsCompanion.insert(
+        projectId: dna.projectId,
+        version: Value(dna.version),
+        dnaJson: jsonEncode(dna.toJson()),
+        updatedAt: dna.updatedAt,
+      ),
+    );
     await _outbox?.enqueue(SyncOutboxEntry(
-      id: _uuid.v4(), entityType: SyncEntityType.projectDna, entityId: dna.projectId,
-      operation: SyncOperation.upsert, payloadJson: jsonEncode(dna.toJson()),
+      id: _uuid.v4(),
+      entityType: SyncEntityType.projectDna,
+      entityId: dna.projectId,
+      operation: SyncOperation.upsert,
+      payloadJson: jsonEncode(dna.toJson()),
       createdAt: dna.updatedAt,
     ));
   }
@@ -135,37 +142,50 @@ class DriftProjectRepository implements ProjectRepository {
   @override
   Future<void> createSnapshot(ProjectSnapshot snapshot) async {
     await _database.insertSnapshot(
-        db.ProjectSnapshotsCompanion.insert(
-          id: snapshot.id,
-          projectId: snapshot.projectId,
-          projectVersion: snapshot.projectVersion,
-          createdAt: snapshot.createdAt,
-          reason: snapshot.reason,
-          projectJson: snapshot.projectJson,
-          dnaJson: snapshot.dnaJson,
-        ),
-      );
+      db.ProjectSnapshotsCompanion.insert(
+        id: snapshot.id,
+        projectId: snapshot.projectId,
+        projectVersion: snapshot.projectVersion,
+        createdAt: snapshot.createdAt,
+        reason: snapshot.reason,
+        projectJson: snapshot.projectJson,
+        dnaJson: snapshot.dnaJson,
+      ),
+    );
     await _outbox?.enqueue(SyncOutboxEntry(
-      id: _uuid.v4(), entityType: SyncEntityType.projectSnapshot, entityId: snapshot.id,
+      id: _uuid.v4(),
+      entityType: SyncEntityType.projectSnapshot,
+      entityId: snapshot.id,
       operation: SyncOperation.upsert,
       payloadJson: jsonEncode({
-        'id': snapshot.id, 'project_id': snapshot.projectId,
+        'id': snapshot.id,
+        'project_id': snapshot.projectId,
         'project_version': snapshot.projectVersion,
-        'created_at': snapshot.createdAt.toIso8601String(), 'reason': snapshot.reason,
-        'project_json': jsonDecode(snapshot.projectJson), 'dna_json': jsonDecode(snapshot.dnaJson),
+        'created_at': snapshot.createdAt.toIso8601String(),
+        'reason': snapshot.reason,
+        'project_json': jsonDecode(snapshot.projectJson),
+        'dna_json': jsonDecode(snapshot.dnaJson),
       }),
       createdAt: snapshot.createdAt,
     ));
   }
 
-  Future<void> _recordProject(domain.Project project, SyncOperation operation) async {
+  Future<void> _recordProject(
+    domain.Project project,
+    SyncOperation operation,
+  ) async {
     await _outbox?.enqueue(SyncOutboxEntry(
-      id: _uuid.v4(), entityType: SyncEntityType.project, entityId: project.id,
+      id: _uuid.v4(),
+      entityType: SyncEntityType.project,
+      entityId: project.id,
       operation: operation,
       payloadJson: jsonEncode({
-        'id': project.id, 'title': project.title, 'category': project.category,
+        'id': project.id,
+        'title': project.title,
+        'category': project.category,
         'maturity_level': project.maturity.name.toUpperCase(),
-        'is_pinned': project.isPinned, 'is_archived': project.isArchived,
+        'is_pinned': project.isPinned,
+        'is_archived': project.isArchived,
         'created_at': project.createdAt.toIso8601String(),
         'updated_at': project.updatedAt.toIso8601String(),
       }),
