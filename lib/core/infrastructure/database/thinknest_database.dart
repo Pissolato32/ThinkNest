@@ -78,6 +78,15 @@ class Documents extends Table {
   Set<Column> get primaryKey => {id};
 }
 
+class SyncCursors extends Table {
+  TextColumn get entityType => text()();
+  DateTimeColumn get lastTimestamp => dateTime().nullable()();
+  TextColumn get lastEntityId => text().nullable()();
+
+  @override
+  Set<Column> get primaryKey => {entityType};
+}
+
 class SyncOutboxEntries extends Table {
   TextColumn get id => text()();
   TextColumn get entityType => text()();
@@ -112,6 +121,7 @@ class ProjectSnapshots extends Table {
   ProjectSnapshots,
   Documents,
   SyncOutboxEntries,
+  SyncCursors,
   ConversationMessages,
   AiTasks
 ])
@@ -120,7 +130,7 @@ class ThinkNestDatabase extends _$ThinkNestDatabase {
       : super(executor ?? driftDatabase(name: 'thinknest'));
 
   @override
-  int get schemaVersion => 6;
+  int get schemaVersion => 7;
 
   @override
   MigrationStrategy get migration => MigrationStrategy(
@@ -142,6 +152,9 @@ class ThinkNestDatabase extends _$ThinkNestDatabase {
           if (from < 6) {
             await m.addColumn(conversationMessages, conversationMessages.updatedAt);
             await m.addColumn(aiTasks, aiTasks.updatedAt);
+          }
+          if (from < 7) {
+            await m.createTable(syncCursors);
           }
         },
       );
