@@ -8,4 +8,9 @@ abstract interface class SyncOutboxRepository {
   Future<void> markAttempt(String id, {String? error});
 
   Future<void> remove(String id);
+
+  Future<void> removeForEntity(
+    SyncEntityType entityType,
+    String entityId,
+  );
 }

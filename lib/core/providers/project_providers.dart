@@ -1,6 +1,7 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 
+import '../application/ai/ai_task_worker.dart';
 import '../application/conversation/send_message.dart';
 import '../application/document/change_document_status.dart';
 import '../application/document/generate_document.dart';
@@ -22,6 +23,7 @@ import '../domain/sync/sync_outbox_repository.dart';
 import '../domain/sync/sync_remote_repository.dart';
 import '../infrastructure/ai/drift_ai_task_repository.dart';
 import '../infrastructure/ai/echo_provider.dart';
+import '../infrastructure/ai/openai_compatible_provider.dart';
 import '../infrastructure/conversation/drift_conversation_repository.dart';
 import '../infrastructure/document/drift_document_repository.dart';
 import '../infrastructure/database/thinknest_database.dart'
@@ -109,14 +111,43 @@ final aiTaskRepositoryProvider = Provider<AiTaskRepository>((ref) {
   );
 });
 
-final aiProvider = Provider<AiProvider>((ref) => const EchoProvider());
+final aiProvider = Provider<AiProvider>((ref) {
+  const baseUrl = String.fromEnvironment('THINKNEST_AI_BASE_URL');
+  const apiKey = String.fromEnvironment('THINKNEST_AI_API_KEY');
+  const model = String.fromEnvironment(
+    'THINKNEST_AI_MODEL',
+    defaultValue: 'default',
+  );
+
+  if (baseUrl.isEmpty || apiKey.isEmpty) {
+    return const EchoProvider();
+  }
+
+  return OpenAiCompatibleProvider(
+    baseUrl: baseUrl,
+    apiKey: apiKey,
+    defaultModel: model,
+  );
+});
+
+final aiTaskWorkerProvider = Provider<AiTaskWorker>((ref) {
+  final worker = AiTaskWorker(
+    ref.watch(aiTaskRepositoryProvider),
+    ref.watch(conversationRepositoryProvider),
+    ref.watch(projectRepositoryProvider),
+    ref.watch(aiProvider),
+  );
+  ref.onDispose(() {
+    worker.dispose();
+  });
+  return worker;
+});
 
 final sendMessageProvider = Provider<SendMessage>((ref) {
   return SendMessage(
     ref.watch(conversationRepositoryProvider),
-    ref.watch(projectRepositoryProvider),
-    ref.watch(aiProvider),
     ref.watch(aiTaskRepositoryProvider),
+    ref.watch(aiTaskWorkerProvider),
   );
 });
 
@@ -147,7 +178,10 @@ final syncEngineProvider = Provider<SyncEngine?>((ref) {
     ref.watch(syncOutboxRepositoryProvider),
     remote,
     ref.watch(syncCursorRepositoryProvider),
-    DriftSyncApplier(ref.watch(databaseProvider)),
+    DriftSyncApplier(
+      ref.watch(databaseProvider),
+      ref.watch(syncOutboxRepositoryProvider),
+    ),
   );
 });
 

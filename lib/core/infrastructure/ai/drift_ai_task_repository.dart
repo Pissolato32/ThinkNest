@@ -37,6 +37,34 @@ class DriftAiTaskRepository implements AiTaskRepository {
   }
 
   @override
+  Future<List<AiTask>> listPending() async {
+    final rows = await (_database.select(_database.aiTasks)
+          ..where((row) => row.status.equals('PENDING'))
+          ..orderBy([(row) => OrderingTerm.asc(row.createdAt)]))
+        .get();
+    return rows.map(_fromRowWithStoredStatus).toList();
+  }
+
+  @override
+  Future<String?> payloadFor(String id) async {
+    final row = await _find(id);
+    return row?.payloadJson;
+  }
+
+  @override
+  Future<void> markRunning(String id) async {
+    final row = await _find(id);
+    if (row == null) return;
+    final task = _fromRow(
+      row,
+      status: AiTaskStatus.running,
+      attempts: row.attempts + 1,
+      lastError: null,
+    );
+    await _update(task);
+  }
+
+  @override
   Future<void> markCompleted(String id) async {
     final row = await _find(id);
     if (row == null) return;
@@ -55,7 +83,21 @@ class DriftAiTaskRepository implements AiTaskRepository {
       row,
       status: AiTaskStatus.pending,
       lastError: error,
-      attempts: 1,
+    );
+    await _update(task);
+  }
+
+  @override
+  Future<void> markFailed(
+    String id, {
+    required String error,
+  }) async {
+    final row = await _find(id);
+    if (row == null) return;
+    final task = _fromRow(
+      row,
+      status: AiTaskStatus.failed,
+      lastError: error,
     );
     await _update(task);
   }
@@ -67,6 +109,7 @@ class DriftAiTaskRepository implements AiTaskRepository {
   Future<void> _update(AiTask task) async {
     final row = await _find(task.id);
     if (row == null) return;
+    final updatedAt = DateTime.now().toUtc();
     await _database.transaction(() async {
       await (_database.update(_database.aiTasks)
             ..where((row) => row.id.equals(task.id)))
@@ -75,14 +118,18 @@ class DriftAiTaskRepository implements AiTaskRepository {
           status: Value(task.status.name.toUpperCase()),
           attempts: Value(task.attempts),
           lastError: Value(task.lastError),
-          updatedAt: Value(DateTime.now().toUtc()),
+          updatedAt: Value(updatedAt),
         ),
       );
-      await _record(task, row.payloadJson);
+      await _record(task, row.payloadJson, updatedAt: updatedAt);
     });
   }
 
-  Future<void> _record(AiTask task, String payloadJson) async {
+  Future<void> _record(
+    AiTask task,
+    String payloadJson, {
+    DateTime? updatedAt,
+  }) async {
     await _outbox?.enqueue(
       SyncOutboxEntry(
         id: _uuid.v4(),
@@ -97,9 +144,9 @@ class DriftAiTaskRepository implements AiTaskRepository {
           'last_error': task.lastError,
           'created_at': task.createdAt.toIso8601String(),
           'payload_json': jsonDecode(payloadJson),
-          'updated_at': DateTime.now().toUtc().toIso8601String(),
+          'updated_at': (updatedAt ?? task.createdAt).toIso8601String(),
         }),
-        createdAt: task.createdAt,
+        createdAt: updatedAt ?? task.createdAt,
       ),
     );
   }
@@ -117,5 +164,17 @@ class DriftAiTaskRepository implements AiTaskRepository {
         status: status,
         attempts: attempts ?? row.attempts,
         lastError: lastError ?? row.lastError,
+      );
+
+  AiTask _fromRowWithStoredStatus(db.AiTask row) => AiTask(
+        id: row.id,
+        projectId: row.projectId,
+        createdAt: row.createdAt,
+        status: AiTaskStatus.values.firstWhere(
+          (status) => status.name.toUpperCase() == row.status,
+          orElse: () => AiTaskStatus.pending,
+        ),
+        attempts: row.attempts,
+        lastError: row.lastError,
       );
 }

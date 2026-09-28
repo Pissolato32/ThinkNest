@@ -1,6 +1,6 @@
 # ThinkNest — Estado da Sincronização Supabase
 
-**Status:** P1.2 — Sync Engine implementado e validado; integração remota autenticada pronta para uso.
+**Status:** P1.2 — Sync Engine implementado; push/pull incremental, conflitos e timestamps de mutação cobertos por testes.
 
 ## Arquitetura atual
 
@@ -54,11 +54,12 @@ A aplicação Flutter não deve conter service-role key. Credenciais públicas d
 4. Retry com backoff exponencial curto e registro de falhas.
 5. Pull incremental por timestamp + ID.
 6. Idempotência por upsert e cursores persistentes.
-7. Last-write-wins para entidades mutáveis.
+7. Last-write-wins para entidades mutáveis; quando a versão remota é mais nova, mutations locais pendentes da mesma entidade são descartadas.
 8. Semântica imutável para snapshots e mensagens.
 9. Remoção do outbox somente após confirmação remota.
 10. Aplicação local sem re-enfileirar mudanças remotas.
-11. Testes automatizados de push, retry, pull e cursor.
+11. Timestamps de mutação persistidos para Conversation Messages e AI Tasks.
+12. Testes automatizados de push, retry, pull, cursor e conflito.
 
 ## Pendências posteriores
 

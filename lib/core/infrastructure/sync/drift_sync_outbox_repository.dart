@@ -54,6 +54,19 @@ class DriftSyncOutboxRepository implements SyncOutboxRepository {
             ..where((row) => row.id.equals(id)))
           .go();
 
+  @override
+  Future<void> removeForEntity(
+    SyncEntityType entityType,
+    String entityId,
+  ) =>
+      (_database.delete(_database.syncOutboxEntries)
+            ..where(
+              (row) =>
+                  row.entityType.equals(entityType.name) &
+                  row.entityId.equals(entityId),
+            ))
+          .go();
+
   SyncOutboxEntry _fromRow(db.SyncOutboxEntry row) => SyncOutboxEntry(
         id: row.id,
         entityType: SyncEntityType.values.firstWhere(

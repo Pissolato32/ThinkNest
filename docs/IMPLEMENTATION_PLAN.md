@@ -1,6 +1,6 @@
 # ThinkNest — Plano de Implementação
 
-**Status:** P0 concluído; P1.1 concluído; P1.2 em implementação  
+**Status:** P0 concluído; P1.1 concluído; P1.2 concluído; P1.3 em implementação  
 **Issue principal:** #5  
 **Fonte normativa:** `docs/`
 
@@ -184,12 +184,14 @@ Regras de implementação:
 
 **P1.2 concluído:** o ciclo local `mutation → outbox → push → remote confirmation → pull → local merge` está implementado com retry/backoff, cursores incrementais, last-write-wins para entidades mutáveis e semântica imutável para snapshots/mensagens. O acesso remoto é protegido por RLS e os privilégios do Data API para `authenticated` foram verificados.
 
-**Estado desta etapa:** a camada local produz mudanças persistentes para todos os agregados sincronizáveis. Ainda não existe um Sync Engine responsável por push/pull remoto; portanto, o outbox permanece como fonte local de mudanças pendentes.
+**Estado desta etapa:** o Sync Engine executa push/pull remoto autenticado, mantém cursores incrementais e remove mudanças locais pendentes quando uma versão remota mais nova vence o conflito.
 
 ### P1.3 — AI Task Queue Cloud
-- [ ] sincronização das AI tasks persistentes.
-- [ ] retomada automática após reconexão.
-- [ ] estado de execução e falhas observáveis.
+- [x] sincronização das AI tasks persistentes.
+- [x] retomada automática após reconexão no ciclo de vida do app.
+- [x] estado de execução e falhas persistido em AI Tasks; exposição operacional ainda pendente.
+
+**Estado atual:** AI Tasks participam do Sync Engine P1.2 e o cliente já retoma tarefas pendentes ao iniciar, voltar ao foreground ou recuperar conectividade. A execução cloud/distribuída ainda não está implementada no repositório; a observabilidade operacional também precisa de uma superfície de UI/telemetria.
 
 ### P1.4 — Voz
 - [ ] captura local.

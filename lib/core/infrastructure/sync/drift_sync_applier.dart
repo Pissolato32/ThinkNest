@@ -4,12 +4,14 @@ import 'package:drift/drift.dart';
 
 import '../../domain/sync/sync_cursor.dart';
 import '../../domain/sync/sync_outbox_entry.dart';
+import '../../domain/sync/sync_outbox_repository.dart';
 import '../database/thinknest_database.dart' as db;
 
 class DriftSyncApplier {
-  DriftSyncApplier(this._database);
+  DriftSyncApplier(this._database, this._outbox);
 
   final db.ThinkNestDatabase _database;
+  final SyncOutboxRepository _outbox;
 
   Future<void> apply(
     SyncEntityType entityType,
@@ -50,6 +52,9 @@ class DriftSyncApplier {
           ..where((item) => item.id.equals(id)))
         .getSingleOrNull();
     if (local != null && !remoteUpdated.isAfter(local.updatedAt)) return;
+    if (local != null) {
+      await _outbox.removeForEntity(SyncEntityType.project, id);
+    }
 
     await _database.upsertProject(
       db.ProjectsCompanion.insert(
@@ -73,6 +78,9 @@ class DriftSyncApplier {
           ..where((item) => item.projectId.equals(projectId)))
         .getSingleOrNull();
     if (local != null && !remoteUpdated.isAfter(local.updatedAt)) return;
+    if (local != null) {
+      await _outbox.removeForEntity(SyncEntityType.projectDna, projectId);
+    }
     await _database.upsertDna(
       db.ProjectDnaRowsCompanion.insert(
         projectId: projectId,
@@ -109,6 +117,9 @@ class DriftSyncApplier {
           ..where((item) => item.id.equals(id)))
         .getSingleOrNull();
     if (local != null && !remoteUpdated.isAfter(local.updatedAt)) return;
+    if (local != null) {
+      await _outbox.removeForEntity(SyncEntityType.document, id);
+    }
     await _database.insertDocument(
       db.DocumentsCompanion.insert(
         id: id,
@@ -132,6 +143,9 @@ class DriftSyncApplier {
           ..where((item) => item.id.equals(id)))
         .getSingleOrNull();
     if (local != null && !remoteUpdated.isAfter(local.updatedAt)) return;
+    if (local != null) {
+      await _outbox.removeForEntity(SyncEntityType.conversationMessage, id);
+    }
     final companion = db.ConversationMessagesCompanion.insert(
       id: id,
       projectId: row['project_id'] as String,
@@ -155,6 +169,9 @@ class DriftSyncApplier {
           ..where((item) => item.id.equals(id)))
         .getSingleOrNull();
     if (local != null && !remoteUpdated.isAfter(local.updatedAt)) return;
+    if (local != null) {
+      await _outbox.removeForEntity(SyncEntityType.aiTask, id);
+    }
     await _database.into(_database.aiTasks).insertOnConflictUpdate(
           db.AiTasksCompanion.insert(
             id: id,

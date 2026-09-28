@@ -37,6 +37,7 @@ class DriftConversationRepository implements ConversationRepository {
 
   @override
   Future<void> updateMessage(ConversationMessage message) async {
+    final updatedAt = DateTime.now().toUtc();
     await _database.transaction(() async {
       await (_database.update(_database.conversationMessages)
             ..where((row) => row.id.equals(message.id)))
@@ -46,10 +47,10 @@ class DriftConversationRepository implements ConversationRepository {
           providerId: Value(message.providerId),
           model: Value(message.model),
           isPending: Value(message.isPending),
-          updatedAt: Value(DateTime.now().toUtc()),
+          updatedAt: Value(updatedAt),
         ),
       );
-      await _record(message);
+      await _record(message, updatedAt: updatedAt);
     });
   }
 
@@ -68,7 +69,10 @@ class DriftConversationRepository implements ConversationRepository {
         updatedAt: message.createdAt,
       );
 
-  Future<void> _record(ConversationMessage message) async {
+  Future<void> _record(
+    ConversationMessage message, {
+    DateTime? updatedAt,
+  }) async {
     await _outbox?.enqueue(
       SyncOutboxEntry(
         id: _uuid.v4(),
@@ -84,8 +88,9 @@ class DriftConversationRepository implements ConversationRepository {
           'provider_id': message.providerId,
           'model': message.model,
           'is_pending': message.isPending,
+          'updated_at': (updatedAt ?? message.createdAt).toIso8601String(),
         }),
-        createdAt: message.createdAt,
+        createdAt: updatedAt ?? message.createdAt,
       ),
     );
   }
