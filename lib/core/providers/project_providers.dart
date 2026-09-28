@@ -6,6 +6,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:stt_record/stt_record.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
+import 'package:uuid/uuid.dart';
 
 import '../application/ai/ai_task_worker.dart';
 import '../application/conversation/send_message.dart';
@@ -33,7 +34,7 @@ import '../infrastructure/ai/openai_compatible_provider.dart';
 import '../infrastructure/conversation/drift_conversation_repository.dart';
 import '../infrastructure/document/drift_document_repository.dart';
 import '../infrastructure/database/thinknest_database.dart'
-    hide Document, Project;
+    hide AiTask, Document, Project;
 import '../infrastructure/project/drift_project_repository.dart';
 import '../infrastructure/sync/drift_sync_applier.dart';
 import '../infrastructure/sync/drift_sync_cursor_repository.dart';
@@ -268,7 +269,9 @@ class SpeechCaptureController {
     final target = documents.path + '/voice_capture.wav';
     final source = File(result.audioPath);
     final copy = await source.copy(target);
-    await source.delete().catchError((_) {});
+    try {
+      await source.delete();
+    } catch (_) {}
     return SpeechCaptureResult(text: text, audioPath: copy.path);
   }
 
@@ -304,7 +307,7 @@ class VoiceRefinementQueue {
     if (user == null) return false;
 
     final taskId = _uuid.v4();
-    final storagePath = user.id + '/' + projectId + '/' + taskId + '.wav';
+    final storagePath = '${user.id}/$projectId/$taskId.wav';
 
     try {
       await client.storage.from(_bucket).upload(
