@@ -267,7 +267,7 @@ class SpeechCaptureController {
     if (result.audioPath.isEmpty) return null;
 
     final documents = await getApplicationDocumentsDirectory();
-    final target = documents.path + '/voice_capture.wav';
+    final target = '${documents.path}/voice_capture.wav';
     final source = File(result.audioPath);
     final copy = await source.copy(target);
     try {
