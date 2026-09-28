@@ -15,24 +15,37 @@ A implementação deve preservar os princípios da Constituição: offline-first
 ## Ordem obrigatória
 
 ### P0.1 — Fundação
-- [ ] Criar aplicação Flutter/Dart.
-- [ ] Configurar Riverpod.
-- [ ] Criar estrutura DDD.
+- [x] Criar aplicação Flutter/Dart.
+- [x] Configurar Riverpod.
+- [x] Criar estrutura DDD.
 - [x] Configurar análise estática e testes.
-- [ ] Corrigir documentação legada que ainda referencia React Native/WatermelonDB/Jest/Detox/RxJS.
+- [x] Corrigir documentação legada que ainda referencia React Native/WatermelonDB/Jest/Detox/RxJS.
 - [x] Garantir que `flutter analyze` e `flutter test` rodem no GitHub Actions.
 
 **Saída:** aplicativo Flutter mínimo executável.
 
+**Implementado:**
+- aplicação Flutter/Dart com Riverpod;
+- separação em camadas de domínio, aplicação e infraestrutura;
+- contratos provider-neutral para persistência, IA, autenticação e sincronização;
+- quality gate de formatação, análise, geração Drift e testes no GitHub Actions.
+
 ### P0.2 — Project + Project DNA
-- [ ] Entidades de domínio Project e ProjectDNA.
-- [ ] Drift como persistência local.
-- [ ] Repositories independentes da infraestrutura.
-- [ ] UUID e versionamento.
-- [ ] Snapshot imutável.
-- [ ] Testes unitários.
+- [x] Entidades de domínio Project e ProjectDNA.
+- [x] Drift como persistência local.
+- [x] Repositories independentes da infraestrutura.
+- [x] UUID e versionamento.
+- [x] Snapshot imutável.
+- [x] Testes unitários.
 
 **Saída:** projeto criado e persistido sem Internet.
+
+**Implementado:**
+- Project e Project DNA persistidos localmente;
+- repositórios de domínio isolados do Drift;
+- criação transacional de projeto + DNA inicial;
+- versionamento e snapshots imutáveis;
+- testes de domínio, aplicação e persistência.
 
 ### P0.3 — Quick Capture
 - [x] Home com campo de captura imediato.
