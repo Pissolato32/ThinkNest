@@ -112,7 +112,8 @@ class AiTaskWorker {
 
       final messages =
           await _conversationRepository.watchMessages(projectId).first;
-      final sourceMessage = messages.where((message) => message.id == messageId);
+      final sourceMessage =
+          messages.where((message) => message.id == messageId);
       if (sourceMessage.isEmpty) {
         throw StateError('Mensagem de origem da AI Task não encontrada.');
       }
