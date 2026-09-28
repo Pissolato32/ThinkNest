@@ -103,7 +103,8 @@ void main() {
         'is_pinned': false,
         'is_archived': false,
         'created_at': '2026-01-01T00:00:00Z',
-        'updated_at': '2026-01-01T00:00:${(index ~/ 100).toString().padLeft(2, '0')}Z',
+        'updated_at':
+            '2026-01-01T00:00:${(index ~/ 100).toString().padLeft(2, '0')}Z',
       },
     );
     final remote = FakeSyncRemoteRepository(
