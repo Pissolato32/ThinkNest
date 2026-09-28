@@ -25,7 +25,7 @@ void main() {
     database = ThinkNestDatabase(NativeDatabase.memory());
     outbox = DriftSyncOutboxRepository(database);
     cursors = DriftSyncCursorRepository(database);
-    applier = DriftSyncApplier(database);
+    applier = DriftSyncApplier(database, outbox);
   });
 
   tearDown(() async {
@@ -95,17 +95,15 @@ void main() {
     final rows = List.generate(
       501,
       (index) => {
-        'id': 'p' + index.toString().padLeft(3, '0'),
+        'id': 'p${index.toString().padLeft(3, '0')}',
         'user_id': 'u1',
-        'title': 'Projeto ' + index.toString(),
+        'title': 'Projeto $index',
         'category': null,
         'maturity_level': 'CAPTURED',
         'is_pinned': false,
         'is_archived': false,
         'created_at': '2026-01-01T00:00:00Z',
-        'updated_at': '2026-01-01T00:00:' +
-            (index ~/ 100).toString().padLeft(2, '0') +
-            'Z',
+        'updated_at': '2026-01-01T00:00:${(index ~/ 100).toString().padLeft(2, '0')}Z',
       },
     );
     final remote = FakeSyncRemoteRepository(
