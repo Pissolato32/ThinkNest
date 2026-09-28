@@ -2,7 +2,6 @@ import 'package:drift/native.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 import 'package:thinknest/core/application/ai/ai_task_worker.dart';
-import 'package:thinknest/core/domain/ai/ai_provider.dart';
 import 'package:thinknest/core/domain/ai/ai_task.dart';
 import 'package:thinknest/core/domain/project/project.dart';
 import 'package:thinknest/core/domain/project/project_dna.dart';
