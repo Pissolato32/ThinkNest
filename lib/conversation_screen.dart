@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
@@ -23,6 +25,61 @@ class ConversationScreen extends ConsumerStatefulWidget {
 class _ConversationScreenState extends ConsumerState<ConversationScreen> {
   final _controller = TextEditingController();
   bool _sending = false;
+  bool _listening = false;
+  bool _voiceAvailable = false;
+
+  @override
+  void initState() {
+    super.initState();
+    unawaited(_initializeVoice());
+  }
+
+  Future<void> _initializeVoice() async {
+    try {
+      final available = await ref.read(voiceTranscriberProvider).initialize();
+      if (mounted) setState(() => _voiceAvailable = available);
+    } catch (_) {
+      if (mounted) setState(() => _voiceAvailable = false);
+    }
+  }
+
+  Future<void> _toggleVoice() async {
+    final voice = ref.read(voiceTranscriberProvider);
+    if (_listening) {
+      await voice.stop();
+      if (mounted) setState(() => _listening = false);
+      return;
+    }
+    if (!_voiceAvailable) {
+      await _initializeVoice();
+      if (!_voiceAvailable) {
+        if (mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(
+              content: Text('Reconhecimento de voz indisponível ou sem permissão.'),
+            ),
+          );
+        }
+        return;
+      }
+    }
+    setState(() => _listening = true);
+    await voice.start(
+      onText: (text) {
+        if (!mounted) return;
+        _controller
+          ..text = text
+          ..selection = TextSelection.collapsed(offset: text.length);
+      },
+      onError: (message) {
+        if (!mounted) return;
+        setState(() => _listening = false);
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('Reconhecimento de voz: $message')),
+        );
+      },
+    );
+  }
 
   @override
   void dispose() {
@@ -130,7 +187,16 @@ class _ConversationScreenState extends ConsumerState<ConversationScreen> {
                       ),
                     ),
                   ),
-                  const SizedBox(width: 8),
+                  const SizedBox(width: 4),
+                  IconButton(
+                    tooltip: _listening ? 'Parar gravação' : 'Falar',
+                    onPressed: _sending ? null : _toggleVoice,
+                    icon: Icon(_listening ? Icons.stop : Icons.mic_none),
+                    color: _listening
+                        ? Theme.of(context).colorScheme.error
+                        : null,
+                  ),
+                  const SizedBox(width: 4),
                   IconButton.filled(
                     onPressed: _sending ? null : _send,
                     icon: _sending
