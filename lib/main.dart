@@ -43,6 +43,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen>
   final _controller = TextEditingController();
   bool _saving = false;
   bool _syncing = false;
+  bool _listening = false;
 
   @override
   void initState() {
@@ -91,6 +92,47 @@ class _HomeScreenState extends ConsumerState<HomeScreen>
     WidgetsBinding.instance.removeObserver(this);
     _controller.dispose();
     super.dispose();
+  }
+
+  Future<void> _toggleVoiceCapture() async {
+    final speech = ref.read(speechCaptureProvider);
+    if (_listening) {
+      await speech.stop();
+      if (mounted) setState(() => _listening = false);
+      return;
+    }
+
+    final started = await speech.start(
+      onResult: (text, isFinal) {
+        if (!mounted || text.trim().isEmpty) return;
+        _controller.value = TextEditingValue(
+          text: text,
+          selection: TextSelection.collapsed(offset: text.length),
+        );
+        if (isFinal) {
+          unawaited(_finishVoiceCapture());
+        }
+      },
+    );
+
+    if (!mounted) return;
+    setState(() => _listening = started);
+    if (!started) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text(
+            'Reconhecimento de voz indisponível neste dispositivo.',
+          ),
+        ),
+      );
+    }
+  }
+
+  Future<void> _finishVoiceCapture() async {
+    final speech = ref.read(speechCaptureProvider);
+    await speech.stop();
+    if (mounted) setState(() => _listening = false);
+    await _capture();
   }
 
   Future<void> _capture() async {
@@ -174,16 +216,28 @@ class _HomeScreenState extends ConsumerState<HomeScreen>
                 ),
               ),
               const SizedBox(height: 12),
-              FilledButton.icon(
-                onPressed: _saving ? null : _capture,
-                icon: _saving
-                    ? const SizedBox(
-                        width: 18,
-                        height: 18,
-                        child: CircularProgressIndicator(strokeWidth: 2),
-                      )
-                    : const Icon(Icons.add),
-                label: const Text('Capturar ideia'),
+              Row(
+                children: [
+                  Expanded(
+                    child: FilledButton.icon(
+                      onPressed: _saving ? null : _capture,
+                      icon: _saving
+                          ? const SizedBox(
+                              width: 18,
+                              height: 18,
+                              child: CircularProgressIndicator(strokeWidth: 2),
+                            )
+                          : const Icon(Icons.add),
+                      label: const Text('Capturar ideia'),
+                    ),
+                  ),
+                  const SizedBox(width: 8),
+                  IconButton.filledTonal(
+                    tooltip: _listening ? 'Parar gravação' : 'Capturar por voz',
+                    onPressed: _saving ? null : _toggleVoiceCapture,
+                    icon: Icon(_listening ? Icons.stop : Icons.mic),
+                  ),
+                ],
               ),
               const SizedBox(height: 32),
               Text(
