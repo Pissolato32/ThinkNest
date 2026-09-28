@@ -36,8 +36,11 @@ class SpeechToTextVoiceTranscriber implements VoiceTranscriber {
         partialResults: true,
         cancelOnError: true,
         autoPunctuation: true,
+      ).copyWith(
+        localeId: localeId,
+        listenFor: const Duration(seconds: 60),
+        pauseFor: const Duration(seconds: 3),
       ),
-      localeId: localeId,
     );
   }
 
