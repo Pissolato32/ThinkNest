@@ -287,7 +287,6 @@ class SpeechCaptureController {
   }
 }
 
-
 class VoiceRefinementQueue {
   VoiceRefinementQueue(this._tasks);
 
