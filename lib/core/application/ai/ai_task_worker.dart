@@ -94,9 +94,7 @@ class AiTaskWorker {
 
     final projectId = payload['project_id'] as String?;
     final messageId = payload['message_id'] as String?;
-    if (projectId == null ||
-        messageId == null ||
-        projectId != task.projectId) {
+    if (projectId == null || messageId == null || projectId != task.projectId) {
       await _taskRepository.markFailed(
         task.id,
         error: 'Payload da AI Task inválido ou projeto inconsistente.',
