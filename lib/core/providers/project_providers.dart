@@ -18,6 +18,7 @@ import '../application/project/create_project.dart';
 import '../application/readiness/evaluate_readiness.dart';
 import '../application/sync/sync_engine.dart';
 import '../domain/ai/ai_provider.dart';
+import '../domain/ai/ai_task.dart';
 import '../domain/auth/auth_repository.dart';
 import '../domain/ai/ai_task_repository.dart';
 import '../domain/conversation/conversation_repository.dart';
