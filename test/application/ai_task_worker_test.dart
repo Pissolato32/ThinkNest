@@ -10,7 +10,8 @@ import 'package:thinknest/core/domain/conversation/conversation_message.dart';
 import 'package:thinknest/core/infrastructure/ai/drift_ai_task_repository.dart';
 import 'package:thinknest/core/infrastructure/ai/echo_provider.dart';
 import 'package:thinknest/core/infrastructure/conversation/drift_conversation_repository.dart';
-import 'package:thinknest/core/infrastructure/database/thinknest_database.dart' show ThinkNestDatabase;
+import 'package:thinknest/core/infrastructure/database/thinknest_database.dart'
+    show ThinkNestDatabase;
 import 'package:thinknest/core/infrastructure/project/drift_project_repository.dart';
 import 'package:thinknest/core/infrastructure/sync/drift_sync_outbox_repository.dart';
 
