@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'dart:convert';
 import 'dart:io';
 
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -285,6 +286,72 @@ class SpeechCaptureController {
     _onResult = null;
   }
 }
+
+
+class VoiceRefinementQueue {
+  VoiceRefinementQueue(this._tasks);
+
+  final AiTaskRepository _tasks;
+  static const _bucket = 'voice-refinement';
+  static const _uuid = Uuid();
+
+  Future<bool> enqueue({
+    required String projectId,
+    required String transcript,
+    required String audioPath,
+  }) async {
+    final client = Supabase.instance.client;
+    final user = client.auth.currentUser;
+    if (user == null) return false;
+
+    final taskId = _uuid.v4();
+    final storagePath = user.id + '/' + projectId + '/' + taskId + '.wav';
+
+    try {
+      await client.storage.from(_bucket).upload(
+            storagePath,
+            File(audioPath),
+            fileOptions: const FileOptions(
+              contentType: 'audio/wav',
+              upsert: false,
+            ),
+          );
+
+      final task = AiTask(
+        id: taskId,
+        projectId: projectId,
+        createdAt: DateTime.now().toUtc(),
+      );
+      await _tasks.enqueue(
+        task,
+        payloadJson: jsonEncode({
+          'type': 'voice_refinement',
+          'project_id': projectId,
+          'transcript': transcript,
+          'storage_path': storagePath,
+        }),
+      );
+
+      try {
+        await client.functions.invoke(
+          'process-ai-task',
+          body: {'task_id': taskId},
+        );
+      } catch (_) {
+        // The persisted task remains PENDING for the cloud queue retry path.
+      }
+
+      await File(audioPath).delete();
+      return true;
+    } catch (_) {
+      return false;
+    }
+  }
+}
+
+final voiceRefinementQueueProvider = Provider<VoiceRefinementQueue>((ref) {
+  return VoiceRefinementQueue(ref.watch(aiTaskRepositoryProvider));
+});
 
 final speechCaptureProvider = Provider<SpeechCaptureController>((ref) {
   final controller = SpeechCaptureController();
