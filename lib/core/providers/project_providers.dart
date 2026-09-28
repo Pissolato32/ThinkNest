@@ -1,5 +1,6 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:supabase_flutter/supabase_flutter.dart';\nimport 'package:speech_to_text/speech_to_text.dart';
+import 'package:speech_to_text/speech_to_text.dart';
+import 'package:supabase_flutter/supabase_flutter.dart';
 
 import '../application/ai/ai_task_worker.dart';
 import '../application/conversation/send_message.dart';
@@ -196,7 +197,6 @@ final authRepositoryProvider = Provider<AuthRepository?>((ref) {
     Supabase.instance.client,
   );
 });
-
 
 /// Thin application boundary around the platform speech recognizer.
 ///
