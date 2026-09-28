@@ -120,7 +120,9 @@ class _HomeScreenState extends ConsumerState<HomeScreen>
     if (!started) {
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(
-          content: Text('Reconhecimento de voz indisponível neste dispositivo.'),
+          content: Text(
+            'Reconhecimento de voz indisponível neste dispositivo.',
+          ),
         ),
       );
     }
