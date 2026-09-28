@@ -1,5 +1,5 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:supabase_flutter/supabase_flutter.dart';
+import 'package:supabase_flutter/supabase_flutter.dart';\nimport 'package:speech_to_text/speech_to_text.dart';
 
 import '../application/ai/ai_task_worker.dart';
 import '../application/conversation/send_message.dart';
@@ -195,4 +195,77 @@ final authRepositoryProvider = Provider<AuthRepository?>((ref) {
   return SupabaseAuthRepository(
     Supabase.instance.client,
   );
+});
+
+
+/// Thin application boundary around the platform speech recognizer.
+///
+/// The controller intentionally keeps the plugin out of the UI layer so the
+/// capture flow can later be replaced by another local STT implementation.
+class SpeechCaptureController {
+  SpeechCaptureController() : _speech = SpeechToText();
+
+  final SpeechToText _speech;
+  bool _initialized = false;
+  bool _isAvailable = false;
+  bool _isListening = false;
+  void Function(String text, bool isFinal)? _onResult;
+
+  bool get isAvailable => _isAvailable;
+  bool get isListening => _isListening;
+
+  Future<bool> initialize() async {
+    if (_initialized) return _isAvailable;
+
+    _initialized = true;
+    _isAvailable = await _speech.initialize(
+      onStatus: (status) {
+        _isListening = status == SpeechToText.listeningStatus;
+      },
+      onError: (_) {
+        _isListening = false;
+      },
+    );
+    return _isAvailable;
+  }
+
+  Future<bool> start({
+    required void Function(String text, bool isFinal) onResult,
+  }) async {
+    if (!await initialize()) return false;
+
+    _onResult = onResult;
+    await _speech.listen(
+      localeId: 'pt_BR',
+      partialResults: true,
+      onDevice: true,
+      onResult: (result) {
+        _onResult?.call(result.recognizedWords, result.finalResult);
+      },
+    );
+    _isListening = _speech.isListening;
+    return _isListening;
+  }
+
+  Future<void> stop() async {
+    await _speech.stop();
+    _isListening = false;
+    _onResult = null;
+  }
+
+  Future<void> cancel() async {
+    await _speech.cancel();
+    _isListening = false;
+    _onResult = null;
+  }
+
+  void dispose() {
+    _onResult = null;
+  }
+}
+
+final speechCaptureProvider = Provider<SpeechCaptureController>((ref) {
+  final controller = SpeechCaptureController();
+  ref.onDispose(controller.dispose);
+  return controller;
 });
