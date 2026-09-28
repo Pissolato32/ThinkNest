@@ -1,5 +1,9 @@
+import 'dart:async';
+import 'dart:io';
+
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:speech_to_text/speech_to_text.dart';
+import 'package:path_provider/path_provider.dart';
+import 'package:stt_record/stt_record.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 
 import '../application/ai/ai_task_worker.dart';
@@ -198,17 +202,25 @@ final authRepositoryProvider = Provider<AuthRepository?>((ref) {
   );
 });
 
-/// Thin application boundary around the platform speech recognizer.
+/// Captures a voice session through one native microphone pipeline.
 ///
-/// The controller intentionally keeps the plugin out of the UI layer so the
-/// capture flow can later be replaced by another local STT implementation.
-class SpeechCaptureController {
-  SpeechCaptureController() : _speech = SpeechToText();
+/// The same session produces realtime local STT and a WAV artifact, avoiding
+/// concurrent recorder/STT plugins competing for the microphone.
+class SpeechCaptureResult {
+  const SpeechCaptureResult({required this.text, required this.audioPath});
 
-  final SpeechToText _speech;
+  final String text;
+  final String audioPath;
+}
+
+class SpeechCaptureController {
+  SpeechCaptureController() : _stt = SttRecord();
+
+  final SttRecord _stt;
   bool _initialized = false;
   bool _isAvailable = false;
   bool _isListening = false;
+  StreamSubscription<dynamic>? _transcriptSubscription;
   void Function(String text, bool isFinal)? _onResult;
 
   bool get isAvailable => _isAvailable;
@@ -216,16 +228,8 @@ class SpeechCaptureController {
 
   Future<bool> initialize() async {
     if (_initialized) return _isAvailable;
-
     _initialized = true;
-    _isAvailable = await _speech.initialize(
-      onStatus: (status) {
-        _isListening = status == SpeechToText.listeningStatus;
-      },
-      onError: (_) {
-        _isListening = false;
-      },
-    );
+    _isAvailable = await _stt.requestPermission();
     return _isAvailable;
   }
 
@@ -233,35 +237,51 @@ class SpeechCaptureController {
     required void Function(String text, bool isFinal) onResult,
   }) async {
     if (!await initialize()) return false;
-
+    await _transcriptSubscription?.cancel();
     _onResult = onResult;
-    await _speech.listen(
-      listenOptions: SpeechListenOptions(
-        localeId: 'pt_BR',
-        partialResults: true,
-        onDevice: true,
-      ),
-      onResult: (result) {
-        _onResult?.call(result.recognizedWords, result.finalResult);
-      },
-    );
-    _isListening = _speech.isListening;
-    return _isListening;
+    _transcriptSubscription = _stt.transcripts.listen((event) {
+      _onResult?.call(event.text, event.isFinal);
+    });
+    try {
+      await _stt.start(localeId: 'pt_BR', partialResults: true);
+      _isListening = true;
+      return true;
+    } catch (_) {
+      _isListening = false;
+      await _transcriptSubscription?.cancel();
+      _transcriptSubscription = null;
+      return false;
+    }
   }
 
-  Future<void> stop() async {
-    await _speech.stop();
+  Future<SpeechCaptureResult?> stop({String text = ''}) async {
+    if (!_isListening) return null;
+    final result = await _stt.stop();
     _isListening = false;
+    await _transcriptSubscription?.cancel();
+    _transcriptSubscription = null;
     _onResult = null;
+    if (result.audioPath.isEmpty) return null;
+
+    final documents = await getApplicationDocumentsDirectory();
+    final target = documents.path + '/voice_capture.wav';
+    final source = File(result.audioPath);
+    final copy = await source.copy(target);
+    await source.delete().catchError((_) {});
+    return SpeechCaptureResult(text: text, audioPath: copy.path);
   }
 
   Future<void> cancel() async {
-    await _speech.cancel();
+    await _stt.cancel();
     _isListening = false;
+    await _transcriptSubscription?.cancel();
+    _transcriptSubscription = null;
     _onResult = null;
   }
 
-  void dispose() {
+  Future<void> dispose() async {
+    await _transcriptSubscription?.cancel();
+    _transcriptSubscription = null;
     _onResult = null;
   }
 }
