@@ -200,9 +200,20 @@ Regras de implementação:
 **Estado desta etapa:** o Sync Engine executa push/pull incremental, retry/backoff, cursores persistentes e merge local com resolução determinística de conflitos. A validação remota autenticada de ponta a ponta continua como etapa de integração, não como requisito para o núcleo offline-first.
 
 ### P1.3 — AI Task Queue Cloud
-- [ ] sincronização das AI tasks persistentes.
-- [ ] retomada automática após reconexão.
-- [ ] estado de execução e falhas observáveis.
+- [x] sincronização das AI tasks persistentes.
+- [x] retomada automática após reconexão.
+- [x] estado de execução e falhas persistidos/retornados pelo worker.
+
+**P1.3 implementado no código:**
+- fila local durável de AI Tasks com retry e limite de tentativas;
+- sincronização remota de AI Tasks pelo Sync Engine;
+- worker cloud individual (`process-ai-task`) com claim concorrente e execução OpenAI-compatible;
+- worker de fila (`process-ai-queue`) para execução server-side em lote;
+- persistência de respostas assistant com ID determinístico;
+- agendamento preparado para Supabase Cron/pg_net;
+- CI dedicado para formatação e type-check das Edge Functions.
+
+**Limite de integração:** deploy das Edge Functions, configuração dos segredos e teste end-to-end contra um projeto Supabase/provedor de IA reais permanecem como validação operacional do ambiente, não como código pendente no repositório.
 
 ### P1.4 — Voz
 - [ ] captura local.
