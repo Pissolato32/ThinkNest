@@ -83,7 +83,6 @@ class SupabaseSyncRemoteRepository implements SyncRemoteRepository {
     return normalized;
   }
 
-
   String _table(SyncEntityType type) => switch (type) {
         SyncEntityType.project => 'projects',
         SyncEntityType.projectDna => 'project_dna',
