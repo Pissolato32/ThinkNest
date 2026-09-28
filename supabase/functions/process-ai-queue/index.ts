@@ -1,21 +1,27 @@
-import { executeAiTask, createAdminClient } from "../_shared/ai_task.ts";
+import { createAdminClient, executeAiTask } from "../_shared/ai_task.ts";
 
 const aiBaseUrl = Deno.env.get("THINKNEST_AI_BASE_URL");
 const aiKey = Deno.env.get("THINKNEST_AI_API_KEY");
 const model = Deno.env.get("THINKNEST_AI_MODEL") ?? "default";
 const workerSecret = Deno.env.get("THINKNEST_AI_WORKER_SECRET");
 const batchSize = 10;
-const cors = { "Access-Control-Allow-Origin": "*", "Access-Control-Allow-Headers": "apikey, content-type" };
+const cors = {
+  "Access-Control-Allow-Origin": "*",
+  "Access-Control-Allow-Headers": "apikey, content-type",
+};
 
-const reply = (body: unknown, status = 200) => new Response(JSON.stringify(body), {
-  status,
-  headers: { ...cors, "Content-Type": "application/json" },
-});
+const reply = (body: unknown, status = 200) =>
+  new Response(JSON.stringify(body), {
+    status,
+    headers: { ...cors, "Content-Type": "application/json" },
+  });
 
 Deno.serve(async (req) => {
   if (req.method === "OPTIONS") return new Response("ok", { headers: cors });
   if (req.method !== "POST") return reply({ error: "Method not allowed" }, 405);
-  if (!workerSecret || req.headers.get("apikey") !== workerSecret) return reply({ error: "Authentication required" }, 401);
+  if (!workerSecret || req.headers.get("apikey") !== workerSecret) {
+    return reply({ error: "Authentication required" }, 401);
+  }
   if (!aiBaseUrl || !aiKey) return reply({ error: "Cloud AI provider is not configured" }, 503);
 
   try {
@@ -31,10 +37,16 @@ Deno.serve(async (req) => {
 
     const results = [];
     for (const task of tasks ?? []) {
-      results.push({ task_id: task.id, ...(await executeAiTask(db, task.id, aiBaseUrl, aiKey, model)) });
+      results.push({
+        task_id: task.id,
+        ...(await executeAiTask(db, task.id, aiBaseUrl, aiKey, model)),
+      });
     }
     return reply({ processed: results.length, results });
   } catch (error) {
-    return reply({ error: error instanceof Error ? error.message : String(error) }, 500);
+    return reply(
+      { error: error instanceof Error ? error.message : String(error) },
+      500,
+    );
   }
 });

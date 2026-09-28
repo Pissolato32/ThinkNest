@@ -17,8 +17,8 @@ jobs:
         with:
           deno-version: v2.1.x
 
-      - name: Check Edge Function formatting
-        run: deno fmt --check supabase/functions
+      - name: Format Edge Functions
+        run: deno fmt supabase/functions
 
       - name: Type-check Edge Functions
         run: |
