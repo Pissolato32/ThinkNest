@@ -218,11 +218,12 @@ Regras de implementação:
 ### P1.4 — Voz
 - [x] captura local.
 - [x] transcrição imediata.
-- [ ] refinamento assíncrono.
+- [x] refinamento assíncrono.
 
-**Estado atual:** captura de voz local integrada ao Quick Capture com speech_to_text 7.4.0, locale pt_BR, resultados parciais no campo e criação local do projeto ao resultado final. O controller fica atrás de Riverpod para manter o UI desacoplado do plugin. O CI cobre o fluxo com um fake do reconhecimento de voz.
+**Estado atual:** Quick Capture usa um único pipeline nativo para transcrição em tempo real e gravação WAV. O artefato é mantido localmente até ser enviado, quando há sessão autenticada e conectividade, para o bucket privado de refinamento. A AI Task persistente registra o refinamento e tenta executar a Edge Function imediatamente; falhas deixam a tarefa pendente para processamento posterior.
 
-**Próxima fatia:** refinamento assíncrono da transcrição via fila de AI Tasks, preservando a transcrição local como fonte imediata. A configuração nativa de permissões de Android/iOS ainda deve acompanhar a geração/empacotamento das plataformas antes de considerar a voz pronta para distribuição.
+**Limites restantes:** o refinamento cloud depende da configuração de um provedor STT nas secrets do Supabase e a validação em dispositivo físico Android/iOS ainda é necessária. A transcrição refinada é preservada como resultado da AI Task; a UI de aprovação/aplicação dessa sugestão é uma evolução posterior para manter autoridade humana.
+
 
 ### P1.5 — Segurança e observabilidade
 - [ ] auditoria.
