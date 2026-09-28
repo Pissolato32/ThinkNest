@@ -32,6 +32,59 @@ void main() {
     await database.close();
   });
 
+  test('rejects a task whose payload targets another project', () async {
+    final now = DateTime.utc(2026, 1, 1);
+    await projects.create(
+      Project(id: 'p1', title: 'Projeto', createdAt: now, updatedAt: now),
+      dna: ProjectDna(projectId: 'p1', version: 1, updatedAt: now),
+    );
+    final task = AiTask(id: 't1', projectId: 'p1', createdAt: now);
+    await tasks.enqueue(
+      task,
+      payloadJson: '{"project_id":"p2","message_id":"m1"}',
+    );
+
+    final worker = AiTaskWorker(
+      tasks,
+      conversations,
+      projects,
+      const EchoProvider(),
+    );
+
+    expect(await worker.run(task), isNull);
+    final row = await (database.select(database.aiTasks)
+          ..where((item) => item.id.equals(task.id)))
+        .getSingle();
+    expect(row.status, 'FAILED');
+  });
+
+  test('fails a task when its source message is missing', () async {
+    final now = DateTime.utc(2026, 1, 1);
+    await projects.create(
+      Project(id: 'p1', title: 'Projeto', createdAt: now, updatedAt: now),
+      dna: ProjectDna(projectId: 'p1', version: 1, updatedAt: now),
+    );
+    final task = AiTask(id: 't1', projectId: 'p1', createdAt: now);
+    await tasks.enqueue(
+      task,
+      payloadJson: '{"project_id":"p1","message_id":"missing"}',
+    );
+
+    final worker = AiTaskWorker(
+      tasks,
+      conversations,
+      projects,
+      const EchoProvider(),
+    );
+
+    await expectLater(worker.run(task), throwsA(isA<StateError>()));
+    final row = await (database.select(database.aiTasks)
+          ..where((item) => item.id.equals(task.id)))
+        .getSingle();
+    expect(row.status, 'PENDING');
+    expect(row.attempts, 1);
+  });
+
   test('executes a pending task and persists its assistant response', () async {
     final now = DateTime.utc(2026, 1, 1);
     const projectId = 'p1';
