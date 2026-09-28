@@ -12,6 +12,7 @@ import '../application/readiness/evaluate_readiness.dart';
 import '../application/sync/sync_engine.dart';
 import '../domain/ai/ai_provider.dart';
 import '../domain/auth/auth_repository.dart';
+import '../domain/voice/voice_transcriber.dart';
 import '../domain/ai/ai_task_repository.dart';
 import '../domain/conversation/conversation_repository.dart';
 import '../domain/document/document.dart';
@@ -35,6 +36,7 @@ import '../infrastructure/sync/drift_sync_outbox_repository.dart';
 import '../infrastructure/sync/supabase_sync_remote_repository.dart';
 import '../infrastructure/supabase/supabase_auth_repository.dart';
 import '../infrastructure/supabase/supabase_config.dart';
+import '../infrastructure/voice/speech_to_text_voice_transcriber.dart';
 
 final databaseProvider = Provider<ThinkNestDatabase>((ref) {
   final database = ThinkNestDatabase();
@@ -141,6 +143,12 @@ final aiTaskWorkerProvider = Provider<AiTaskWorker>((ref) {
     worker.dispose();
   });
   return worker;
+});
+
+final voiceTranscriberProvider = Provider<VoiceTranscriber>((ref) {
+  final transcriber = SpeechToTextVoiceTranscriber();
+  ref.onDispose(() => transcriber.stop());
+  return transcriber;
 });
 
 final sendMessageProvider = Provider<SendMessage>((ref) {
