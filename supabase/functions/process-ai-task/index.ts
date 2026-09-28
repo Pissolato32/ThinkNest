@@ -5,6 +5,8 @@ const url = Deno.env.get("SUPABASE_URL")!;
 const anonKey = Deno.env.get("SUPABASE_ANON_KEY")!;
 const aiBaseUrl = Deno.env.get("THINKNEST_AI_BASE_URL");
 const aiKey = Deno.env.get("THINKNEST_AI_API_KEY");
+const sttBaseUrl = Deno.env.get("THINKNEST_STT_BASE_URL");
+const sttKey = Deno.env.get("THINKNEST_STT_API_KEY");
 const model = Deno.env.get("THINKNEST_AI_MODEL") ?? "default";
 const workerSecret = Deno.env.get("THINKNEST_AI_WORKER_SECRET");
 const serviceRoleKey = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY");
@@ -22,7 +24,9 @@ const reply = (body: unknown, status = 200) =>
 Deno.serve(async (req) => {
   if (req.method === "OPTIONS") return new Response("ok", { headers: cors });
   if (req.method !== "POST") return reply({ error: "Method not allowed" }, 405);
-  if (!aiBaseUrl || !aiKey) return reply({ error: "Cloud AI provider is not configured" }, 503);
+  if ((!aiBaseUrl || !aiKey) && (!sttBaseUrl || !sttKey)) {
+    return reply({ error: "Cloud AI/STT provider is not configured" }, 503);
+  }
 
   const internalKey = req.headers.get("apikey");
   const isInternal = Boolean(
@@ -65,7 +69,13 @@ Deno.serve(async (req) => {
     if (!ownedTask) return reply({ error: "AI Task not found" }, 404);
   }
 
-  const result = await executeAiTask(db, body.task_id, aiBaseUrl, aiKey, model);
+  const result = await executeAiTask(
+    db,
+    body.task_id,
+    aiBaseUrl ?? sttBaseUrl!,
+    aiKey ?? sttKey!,
+    model,
+  );
   const status =
     result.status === "COMPLETED"
       ? 200
