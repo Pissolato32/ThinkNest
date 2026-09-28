@@ -45,6 +45,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen>
   bool _syncing = false;
   bool _listening = false;
   String _voiceTranscript = '';
+  SpeechCaptureResult? _pendingVoiceCapture;
 
   @override
   void initState() {
@@ -98,11 +99,9 @@ class _HomeScreenState extends ConsumerState<HomeScreen>
   Future<void> _toggleVoiceCapture() async {
     final speech = ref.read(speechCaptureProvider);
     if (_listening) {
-      final capture = await speech.stop(text: _voiceTranscript);
+      _pendingVoiceCapture = await speech.stop(text: _voiceTranscript);
       if (mounted) setState(() => _listening = false);
-      if (capture != null) {
-        // The WAV artifact is retained locally for the asynchronous refinement step.
-      }
+      await _capture(voiceCapture: _pendingVoiceCapture);
       return;
     }
 
@@ -135,15 +134,12 @@ class _HomeScreenState extends ConsumerState<HomeScreen>
 
   Future<void> _finishVoiceCapture() async {
     final speech = ref.read(speechCaptureProvider);
-    final capture = await speech.stop(text: _voiceTranscript);
+    _pendingVoiceCapture = await speech.stop(text: _voiceTranscript);
     if (mounted) setState(() => _listening = false);
-    if (capture != null) {
-      // The WAV artifact is retained locally for the asynchronous refinement step.
-    }
-    await _capture();
+    await _capture(voiceCapture: _pendingVoiceCapture);
   }
 
-  Future<void> _capture() async {
+  Future<void> _capture({SpeechCaptureResult? voiceCapture}) async {
     if (_saving) return;
     final title = _controller.text.trim();
     if (title.isEmpty) return;
@@ -154,6 +150,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen>
         title: title,
       );
       _controller.clear();
+      _pendingVoiceCapture = null;
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(content: Text('Projeto capturado localmente.')),
