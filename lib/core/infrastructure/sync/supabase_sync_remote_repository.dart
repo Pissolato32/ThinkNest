@@ -83,20 +83,6 @@ class SupabaseSyncRemoteRepository implements SyncRemoteRepository {
     return normalized;
   }
 
-  bool _isAfterCursor(
-    Map<String, dynamic> row,
-    SyncCursor? cursor,
-    String timestampColumn,
-  ) {
-    if (cursor?.lastTimestamp == null) return true;
-    final timestamp = DateTime.parse(row[timestampColumn] as String).toUtc();
-    final lastTimestamp = cursor!.lastTimestamp!.toUtc();
-    if (timestamp.isAfter(lastTimestamp)) return true;
-    if (!timestamp.isAtSameMomentAs(lastTimestamp)) return false;
-    final id = row['id'] ?? row['project_id'];
-    return id is String &&
-        (cursor.lastEntityId == null || id.compareTo(cursor.lastEntityId!) > 0);
-  }
 
   String _table(SyncEntityType type) => switch (type) {
         SyncEntityType.project => 'projects',
