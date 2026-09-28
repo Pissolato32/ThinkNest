@@ -1,0 +1,7 @@
+# ThinkNest Supabase Edge Function authentication is handled explicitly in code.
+# User requests use a Supabase Auth JWT; the queue endpoint uses a server-side secret key.
+[functions.process-ai-task]
+verify_jwt = false
+
+[functions.process-ai-queue]
+verify_jwt = false
