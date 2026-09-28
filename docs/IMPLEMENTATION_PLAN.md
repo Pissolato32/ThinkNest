@@ -188,10 +188,10 @@ Regras de implementação:
 
 ### P1.3 — AI Task Queue Cloud
 - [x] sincronização das AI tasks persistentes.
-- [ ] retomada automática após reconexão.
-- [ ] estado de execução e falhas observáveis.
+- [x] retomada automática após reconexão no ciclo de vida do app.
+- [x] estado de execução e falhas persistido em AI Tasks; exposição operacional ainda pendente.
 
-**Estado atual:** AI Tasks já participam do Sync Engine P1.2 como entidade persistida e sincronizável. P1.3 passa a tratar retomada automática, execução remota e observabilidade do ciclo de tarefas.
+**Estado atual:** AI Tasks participam do Sync Engine P1.2 e o cliente já retoma tarefas pendentes ao iniciar, voltar ao foreground ou recuperar conectividade. A execução cloud/distribuída ainda não está implementada no repositório; a observabilidade operacional também precisa de uma superfície de UI/telemetria.
 
 ### P1.4 — Voz
 - [ ] captura local.
