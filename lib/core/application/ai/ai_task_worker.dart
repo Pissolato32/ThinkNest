@@ -81,13 +81,23 @@ class AiTaskWorker {
       return null;
     }
 
-    final payload = jsonDecode(payloadJson) as Map<String, dynamic>;
-    final projectId = payload['project_id'] as String?;
-    final messageId = payload['message_id'] as String?;
-    if (projectId == null || messageId == null) {
+    Map<String, dynamic> payload;
+    try {
+      payload = jsonDecode(payloadJson) as Map<String, dynamic>;
+    } catch (_) {
       await _taskRepository.markFailed(
         task.id,
         error: 'Payload da AI Task inválido.',
+      );
+      return null;
+    }
+
+    final projectId = payload['project_id'] as String?;
+    final messageId = payload['message_id'] as String?;
+    if (projectId == null || messageId == null || projectId != task.projectId) {
+      await _taskRepository.markFailed(
+        task.id,
+        error: 'Payload da AI Task inválido ou projeto inconsistente.',
       );
       return null;
     }
@@ -102,6 +112,11 @@ class AiTaskWorker {
 
       final messages =
           await _conversationRepository.watchMessages(projectId).first;
+      final sourceMessage = messages.where((message) => message.id == messageId);
+      if (sourceMessage.isEmpty) {
+        throw StateError('Mensagem de origem da AI Task não encontrada.');
+      }
+
       final request = AiRequest(
         projectId: projectId,
         dna: dna,
