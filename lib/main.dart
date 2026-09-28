@@ -44,6 +44,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen>
   bool _saving = false;
   bool _syncing = false;
   bool _listening = false;
+  String _voiceTranscript = '';
 
   @override
   void initState() {
@@ -97,14 +98,18 @@ class _HomeScreenState extends ConsumerState<HomeScreen>
   Future<void> _toggleVoiceCapture() async {
     final speech = ref.read(speechCaptureProvider);
     if (_listening) {
-      await speech.stop();
+      final capture = await speech.stop(text: _voiceTranscript);
       if (mounted) setState(() => _listening = false);
+      if (capture != null) {
+        // The WAV artifact is retained locally for the asynchronous refinement step.
+      }
       return;
     }
 
     final started = await speech.start(
       onResult: (text, isFinal) {
         if (!mounted || text.trim().isEmpty) return;
+        _voiceTranscript = text;
         _controller.value = TextEditingValue(
           text: text,
           selection: TextSelection.collapsed(offset: text.length),
@@ -130,8 +135,11 @@ class _HomeScreenState extends ConsumerState<HomeScreen>
 
   Future<void> _finishVoiceCapture() async {
     final speech = ref.read(speechCaptureProvider);
-    await speech.stop();
+    final capture = await speech.stop(text: _voiceTranscript);
     if (mounted) setState(() => _listening = false);
+    if (capture != null) {
+      // The WAV artifact is retained locally for the asynchronous refinement step.
+    }
     await _capture();
   }
 
