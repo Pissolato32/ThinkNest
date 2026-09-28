@@ -216,9 +216,13 @@ Regras de implementação:
 **Limite de integração:** deploy das Edge Functions, configuração dos segredos e teste end-to-end contra um projeto Supabase/provedor de IA reais permanecem como validação operacional do ambiente, não como código pendente no repositório.
 
 ### P1.4 — Voz
-- [ ] captura local.
-- [ ] transcrição imediata.
+- [x] captura local.
+- [x] transcrição imediata.
 - [ ] refinamento assíncrono.
+
+**Estado atual:** captura de voz local integrada ao Quick Capture com speech_to_text 7.4.0, locale pt_BR, resultados parciais no campo e criação local do projeto ao resultado final. O controller fica atrás de Riverpod para manter o UI desacoplado do plugin. O CI cobre o fluxo com um fake do reconhecimento de voz.
+
+**Próxima fatia:** refinamento assíncrono da transcrição via fila de AI Tasks, preservando a transcrição local como fonte imediata. A configuração nativa de permissões de Android/iOS ainda deve acompanhar a geração/empacotamento das plataformas antes de considerar a voz pronta para distribuição.
 
 ### P1.5 — Segurança e observabilidade
 - [ ] auditoria.
