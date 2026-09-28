@@ -31,6 +31,8 @@ class ThinkNestApp extends StatelessWidget {
   }
 }
 
+SpeechCaptureResult? voiceCaptureOrNull(SpeechCaptureResult? capture) => capture;
+
 class HomeScreen extends ConsumerStatefulWidget {
   const HomeScreen({super.key});
 
@@ -146,9 +148,17 @@ class _HomeScreenState extends ConsumerState<HomeScreen>
 
     setState(() => _saving = true);
     try {
-      await ref.read(createProjectProvider)(
+      final project = await ref.read(createProjectProvider)(
         title: title,
       );
+      final voiceCapture = voiceCaptureOrNull(voiceCapture);
+      if (voiceCapture != null) {
+        await ref.read(voiceRefinementQueueProvider).enqueue(
+              projectId: project.id,
+              transcript: voiceCapture.text,
+              audioPath: voiceCapture.audioPath,
+            );
+      }
       _controller.clear();
       _pendingVoiceCapture = null;
       if (mounted) {
