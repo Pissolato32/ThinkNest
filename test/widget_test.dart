@@ -41,31 +41,6 @@ class _WidgetRepository implements ProjectRepository {
 
   @override
   Future<void> saveDna(ProjectDna dna) async {}
-  testWidgets('captures an idea from voice recognition', (tester) async {
-    final repository = _WidgetRepository();
-    final speech = _FakeSpeechCaptureController();
-
-    await tester.pumpWidget(
-      ProviderScope(
-        overrides: [
-          projectRepositoryProvider.overrideWithValue(repository),
-          speechCaptureProvider.overrideWithValue(speech),
-        ],
-        child: const ThinkNestApp(),
-      ),
-    );
-
-    await tester.tap(find.byTooltip('Capturar por voz'));
-    await tester.pump();
-    expect(speech.started, isTrue);
-
-    speech.onResult?.call('Projeto capturado por voz', true);
-    await tester.pumpAndSettle();
-
-    expect(find.text('Projeto capturado por voz'), findsOneWidget);
-    expect(repository.projects.single.title, 'Projeto capturado por voz');
-  });
-
 }
 
 class _FakeSpeechCaptureController extends SpeechCaptureController {
@@ -108,5 +83,30 @@ void main() {
     await tester.pumpAndSettle();
 
     expect(find.text('Meu novo projeto'), findsOneWidget);
+  });
+
+  testWidgets('captures an idea from voice recognition', (tester) async {
+    final repository = _WidgetRepository();
+    final speech = _FakeSpeechCaptureController();
+
+    await tester.pumpWidget(
+      ProviderScope(
+        overrides: [
+          projectRepositoryProvider.overrideWithValue(repository),
+          speechCaptureProvider.overrideWithValue(speech),
+        ],
+        child: const ThinkNestApp(),
+      ),
+    );
+
+    await tester.tap(find.byTooltip('Capturar por voz'));
+    await tester.pump();
+    expect(speech.started, isTrue);
+
+    speech.onResult?.call('Projeto capturado por voz', true);
+    await tester.pumpAndSettle();
+
+    expect(find.text('Projeto capturado por voz'), findsOneWidget);
+    expect(repository.projects.single.title, 'Projeto capturado por voz');
   });
 }
