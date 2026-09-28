@@ -236,7 +236,7 @@ class SpeechCaptureController {
 
     _onResult = onResult;
     await _speech.listen(
-      listenOptions: const SpeechListenOptions(
+      listenOptions: SpeechListenOptions(
         localeId: 'pt_BR',
         partialResults: true,
         onDevice: true,
