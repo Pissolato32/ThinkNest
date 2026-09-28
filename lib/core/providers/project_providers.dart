@@ -1,6 +1,12 @@
+import 'dart:async';
+import 'dart:convert';
+import 'dart:io';
+
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:speech_to_text/speech_to_text.dart';
+import 'package:path_provider/path_provider.dart';
+import 'package:stt_record/stt_record.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
+import 'package:uuid/uuid.dart';
 
 import '../application/ai/ai_task_worker.dart';
 import '../application/conversation/send_message.dart';
@@ -12,6 +18,7 @@ import '../application/project/create_project.dart';
 import '../application/readiness/evaluate_readiness.dart';
 import '../application/sync/sync_engine.dart';
 import '../domain/ai/ai_provider.dart';
+import '../domain/ai/ai_task.dart';
 import '../domain/auth/auth_repository.dart';
 import '../domain/ai/ai_task_repository.dart';
 import '../domain/conversation/conversation_repository.dart';
@@ -28,7 +35,7 @@ import '../infrastructure/ai/openai_compatible_provider.dart';
 import '../infrastructure/conversation/drift_conversation_repository.dart';
 import '../infrastructure/document/drift_document_repository.dart';
 import '../infrastructure/database/thinknest_database.dart'
-    hide Document, Project;
+    hide AiTask, Document, Project;
 import '../infrastructure/project/drift_project_repository.dart';
 import '../infrastructure/sync/drift_sync_applier.dart';
 import '../infrastructure/sync/drift_sync_cursor_repository.dart';
@@ -198,17 +205,25 @@ final authRepositoryProvider = Provider<AuthRepository?>((ref) {
   );
 });
 
-/// Thin application boundary around the platform speech recognizer.
+/// Captures a voice session through one native microphone pipeline.
 ///
-/// The controller intentionally keeps the plugin out of the UI layer so the
-/// capture flow can later be replaced by another local STT implementation.
-class SpeechCaptureController {
-  SpeechCaptureController() : _speech = SpeechToText();
+/// The same session produces realtime local STT and a WAV artifact, avoiding
+/// concurrent recorder/STT plugins competing for the microphone.
+class SpeechCaptureResult {
+  const SpeechCaptureResult({required this.text, required this.audioPath});
 
-  final SpeechToText _speech;
+  final String text;
+  final String audioPath;
+}
+
+class SpeechCaptureController {
+  SpeechCaptureController() : _stt = SttRecord();
+
+  final SttRecord _stt;
   bool _initialized = false;
   bool _isAvailable = false;
   bool _isListening = false;
+  StreamSubscription<dynamic>? _transcriptSubscription;
   void Function(String text, bool isFinal)? _onResult;
 
   bool get isAvailable => _isAvailable;
@@ -216,16 +231,8 @@ class SpeechCaptureController {
 
   Future<bool> initialize() async {
     if (_initialized) return _isAvailable;
-
     _initialized = true;
-    _isAvailable = await _speech.initialize(
-      onStatus: (status) {
-        _isListening = status == SpeechToText.listeningStatus;
-      },
-      onError: (_) {
-        _isListening = false;
-      },
-    );
+    _isAvailable = await _stt.requestPermission();
     return _isAvailable;
   }
 
@@ -233,38 +240,121 @@ class SpeechCaptureController {
     required void Function(String text, bool isFinal) onResult,
   }) async {
     if (!await initialize()) return false;
-
+    await _transcriptSubscription?.cancel();
     _onResult = onResult;
-    await _speech.listen(
-      listenOptions: SpeechListenOptions(
-        localeId: 'pt_BR',
-        partialResults: true,
-        onDevice: true,
-      ),
-      onResult: (result) {
-        _onResult?.call(result.recognizedWords, result.finalResult);
-      },
-    );
-    _isListening = _speech.isListening;
-    return _isListening;
+    _transcriptSubscription = _stt.transcripts.listen((event) {
+      _onResult?.call(event.text, event.isFinal);
+    });
+    try {
+      await _stt.start(localeId: 'pt_BR', partialResults: true);
+      _isListening = true;
+      return true;
+    } catch (_) {
+      _isListening = false;
+      await _transcriptSubscription?.cancel();
+      _transcriptSubscription = null;
+      return false;
+    }
   }
 
-  Future<void> stop() async {
-    await _speech.stop();
+  Future<SpeechCaptureResult?> stop({String text = ''}) async {
+    if (!_isListening) return null;
+    final result = await _stt.stop();
     _isListening = false;
+    await _transcriptSubscription?.cancel();
+    _transcriptSubscription = null;
     _onResult = null;
+    if (result.audioPath.isEmpty) return null;
+
+    final documents = await getApplicationDocumentsDirectory();
+    final target = '${documents.path}/voice_capture.wav';
+    final source = File(result.audioPath);
+    final copy = await source.copy(target);
+    try {
+      await source.delete();
+    } catch (_) {}
+    return SpeechCaptureResult(text: text, audioPath: copy.path);
   }
 
   Future<void> cancel() async {
-    await _speech.cancel();
+    await _stt.cancel();
     _isListening = false;
+    await _transcriptSubscription?.cancel();
+    _transcriptSubscription = null;
     _onResult = null;
   }
 
-  void dispose() {
+  Future<void> dispose() async {
+    await _transcriptSubscription?.cancel();
+    _transcriptSubscription = null;
     _onResult = null;
   }
 }
+
+class VoiceRefinementQueue {
+  VoiceRefinementQueue(this._tasks);
+
+  final AiTaskRepository _tasks;
+  static const _bucket = 'voice-refinement';
+  static const _uuid = Uuid();
+
+  Future<bool> enqueue({
+    required String projectId,
+    required String transcript,
+    required String audioPath,
+  }) async {
+    final client = Supabase.instance.client;
+    final user = client.auth.currentUser;
+    if (user == null) return false;
+
+    final taskId = _uuid.v4();
+    final storagePath = '${user.id}/$projectId/$taskId.wav';
+
+    try {
+      await client.storage.from(_bucket).upload(
+            storagePath,
+            File(audioPath),
+            fileOptions: const FileOptions(
+              contentType: 'audio/wav',
+              upsert: false,
+            ),
+          );
+
+      final task = AiTask(
+        id: taskId,
+        projectId: projectId,
+        createdAt: DateTime.now().toUtc(),
+      );
+      await _tasks.enqueue(
+        task,
+        payloadJson: jsonEncode({
+          'type': 'voice_refinement',
+          'project_id': projectId,
+          'transcript': transcript,
+          'storage_path': storagePath,
+        }),
+      );
+
+      try {
+        await client.functions.invoke(
+          'process-ai-task',
+          body: {'task_id': taskId},
+        );
+      } catch (_) {
+        // The persisted task remains PENDING for the cloud queue retry path.
+      }
+
+      await File(audioPath).delete();
+      return true;
+    } catch (_) {
+      return false;
+    }
+  }
+}
+
+final voiceRefinementQueueProvider = Provider<VoiceRefinementQueue>((ref) {
+  return VoiceRefinementQueue(ref.watch(aiTaskRepositoryProvider));
+});
 
 final speechCaptureProvider = Provider<SpeechCaptureController>((ref) {
   final controller = SpeechCaptureController();

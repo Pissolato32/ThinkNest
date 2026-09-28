@@ -43,6 +43,16 @@ export async function executeAiTask(
   if (claimError) return { status: "PENDING", error: claimError.message };
   if (!claimed) return { status: "RUNNING" };
 
+  const type = task.payload_json?.type;
+  if (type === "voice_refinement") {
+    return executeVoiceRefinement(
+      db,
+      task,
+      aiBaseUrl,
+      aiKey,
+    );
+  }
+
   const fail = async (error: string): Promise<AiTaskResult> => {
     const status = attempts >= MAX_ATTEMPTS ? "FAILED" : "PENDING";
     await db
@@ -154,4 +164,109 @@ export function createAdminClient(): SupabaseClient {
     throw new Error("Supabase service credentials are not configured");
   }
   return createClient(url, serviceRoleKey);
+}
+
+
+async function executeVoiceRefinement(
+  db: SupabaseClient,
+  task: {
+    id: string;
+    project_id: string;
+    attempts: number;
+    payload_json: Record<string, unknown>;
+  },
+  defaultBaseUrl: string,
+  defaultApiKey: string,
+): Promise<AiTaskResult> {
+  const storagePath = task.payload_json.storage_path;
+  if (typeof storagePath !== "string" || !storagePath) {
+    return { status: "FAILED", error: "Voice refinement storage path missing" };
+  }
+
+  const sttBaseUrl =
+    Deno.env.get("THINKNEST_STT_BASE_URL") ?? defaultBaseUrl;
+  const sttApiKey =
+    Deno.env.get("THINKNEST_STT_API_KEY") ?? defaultApiKey;
+  const sttModel =
+    Deno.env.get("THINKNEST_STT_MODEL") ?? "gpt-4o-mini-transcribe";
+
+  try {
+    const { data: audio, error: downloadError } = await db.storage
+      .from("voice-refinement")
+      .download(storagePath);
+
+    if (downloadError || !audio) {
+      throw new Error(
+        downloadError?.message ?? "Voice refinement audio not found",
+      );
+    }
+
+    const endpoint = sttBaseUrl.endsWith("/audio/transcriptions")
+      ? sttBaseUrl
+      : sttBaseUrl.replace(/\/$/, "") + "/audio/transcriptions";
+    const form = new FormData();
+    form.append(
+      "file",
+      new File([await audio.arrayBuffer()], "voice.wav", {
+        type: "audio/wav",
+      }),
+    );
+    form.append("model", sttModel);
+    form.append("language", "pt");
+
+    const response = await fetch(endpoint, {
+      method: "POST",
+      headers: {
+        Authorization: `Bearer ${sttApiKey}`,
+      },
+      body: form,
+    });
+
+    const result = await response.json().catch(() => null);
+    if (!response.ok) {
+      throw new Error(
+        `STT provider HTTP ${response.status}: ${JSON.stringify(result)}`,
+      );
+    }
+
+    const refined = result?.text;
+    if (typeof refined !== "string" || !refined.trim()) {
+      throw new Error("STT provider returned an empty transcription");
+    }
+
+    const now = new Date().toISOString();
+    const payload = {
+      ...task.payload_json,
+      refined_transcript: refined.trim(),
+      refined_at: now,
+    };
+
+    const { error: completionError } = await db
+      .from("ai_tasks")
+      .update({
+        status: "COMPLETED",
+        last_error: null,
+        payload_json: payload,
+        updated_at: now,
+      })
+      .eq("id", task.id);
+
+    if (completionError) throw completionError;
+
+    await db.storage.from("voice-refinement").remove([storagePath]);
+
+    return { status: "COMPLETED" };
+  } catch (error) {
+    const message = error instanceof Error ? error.message : String(error);
+    const status = task.attempts >= MAX_ATTEMPTS ? "FAILED" : "PENDING";
+    await db
+      .from("ai_tasks")
+      .update({
+        status,
+        last_error: message,
+        updated_at: new Date().toISOString(),
+      })
+      .eq("id", task.id);
+    return { status, error: message };
+  }
 }

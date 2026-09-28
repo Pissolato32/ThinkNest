@@ -57,8 +57,9 @@ class _FakeSpeechCaptureController extends SpeechCaptureController {
   }
 
   @override
-  Future<void> stop() async {
+  Future<SpeechCaptureResult?> stop({String text = ''}) async {
     started = false;
+    return null;
   }
 }
 

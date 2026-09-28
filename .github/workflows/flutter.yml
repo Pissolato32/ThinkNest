@@ -19,11 +19,38 @@ jobs:
 
       - uses: subosito/flutter-action@v2
         with:
-          flutter-version: '3.35.7'
+          flutter-version: '3.38.0'
           cache: true
 
       - name: Generate Flutter platform scaffolding
-        run: flutter create . --platforms=android,web --no-pub
+        run: flutter create . --platforms=android,ios,web --no-pub
+
+      - name: Configure voice platform permissions
+        run: |
+          python3 - <<'PY'
+          from pathlib import Path
+
+          manifest = Path("android/app/src/main/AndroidManifest.xml")
+          text = manifest.read_text()
+          permission = '    <uses-permission android:name="android.permission.RECORD_AUDIO"/>\\n'
+          if "android.permission.RECORD_AUDIO" not in text:
+              text = text.replace("<manifest", "<manifest", 1)
+              insert = text.index(">", text.index("<manifest")) + 1
+              text = text[:insert] + "\\n" + permission + text[insert:]
+          manifest.write_text(text)
+
+          plist = Path("ios/Runner/Info.plist")
+          text = plist.read_text()
+          additions = """
+            <key>NSMicrophoneUsageDescription</key>
+            <string>O ThinkNest usa o microfone para capturar ideias por voz.</string>
+            <key>NSSpeechRecognitionUsageDescription</key>
+            <string>O ThinkNest usa reconhecimento de fala para transcrever ideias.</string>
+          """
+          if "NSMicrophoneUsageDescription" not in text:
+              text = text.replace("</dict>", additions + "\n</dict>")
+          plist.write_text(text)
+          PY
 
       - name: Get dependencies
         run: flutter pub get

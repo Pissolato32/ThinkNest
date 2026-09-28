@@ -44,6 +44,8 @@ class _HomeScreenState extends ConsumerState<HomeScreen>
   bool _saving = false;
   bool _syncing = false;
   bool _listening = false;
+  String _voiceTranscript = '';
+  SpeechCaptureResult? _pendingVoiceCapture;
 
   @override
   void initState() {
@@ -97,14 +99,16 @@ class _HomeScreenState extends ConsumerState<HomeScreen>
   Future<void> _toggleVoiceCapture() async {
     final speech = ref.read(speechCaptureProvider);
     if (_listening) {
-      await speech.stop();
+      _pendingVoiceCapture = await speech.stop(text: _voiceTranscript);
       if (mounted) setState(() => _listening = false);
+      await _capture(voiceCapture: _pendingVoiceCapture);
       return;
     }
 
     final started = await speech.start(
       onResult: (text, isFinal) {
         if (!mounted || text.trim().isEmpty) return;
+        _voiceTranscript = text;
         _controller.value = TextEditingValue(
           text: text,
           selection: TextSelection.collapsed(offset: text.length),
@@ -130,22 +134,30 @@ class _HomeScreenState extends ConsumerState<HomeScreen>
 
   Future<void> _finishVoiceCapture() async {
     final speech = ref.read(speechCaptureProvider);
-    await speech.stop();
+    _pendingVoiceCapture = await speech.stop(text: _voiceTranscript);
     if (mounted) setState(() => _listening = false);
-    await _capture();
+    await _capture(voiceCapture: _pendingVoiceCapture);
   }
 
-  Future<void> _capture() async {
+  Future<void> _capture({SpeechCaptureResult? voiceCapture}) async {
     if (_saving) return;
     final title = _controller.text.trim();
     if (title.isEmpty) return;
 
     setState(() => _saving = true);
     try {
-      await ref.read(createProjectProvider)(
+      final project = await ref.read(createProjectProvider)(
         title: title,
       );
+      if (voiceCapture != null) {
+        await ref.read(voiceRefinementQueueProvider).enqueue(
+              projectId: project.id,
+              transcript: voiceCapture.text,
+              audioPath: voiceCapture.audioPath,
+            );
+      }
       _controller.clear();
+      _pendingVoiceCapture = null;
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(content: Text('Projeto capturado localmente.')),
