@@ -1,6 +1,6 @@
 # ThinkNest — CI/CD e Deployment
 
-**Version:** 2.1  
+**Version:** 2.2  
 **Status:** Approved  
 **Stack:** Flutter/Dart + Supabase  
 **Objetivo:** definir o caminho de validação, build e promoção do ThinkNest sem pressupor serviços de release que ainda não foram configurados.
@@ -18,7 +18,7 @@ O pipeline deve:
 - não publicar automaticamente uma versão de produção sem os requisitos de assinatura, credenciais e aprovação correspondentes;
 - preservar o funcionamento offline-first do aplicativo.
 
-A implementação atual possui CI de Flutter e CI das Edge Functions. O deploy de produção ainda é uma etapa P1.6 a implementar.
+A implementação atual possui CI de Flutter e CI das Edge Functions. O deploy Supabase de produção possui workflow manual controlado; staging/preview e promoção entre ambientes ainda não estão configurados.
 
 ## 2. Estado atual
 
@@ -46,8 +46,11 @@ O workflow `.github/workflows/supabase-deploy.yml` implementa o primeiro passo o
 - execução exclusivamente manual via `workflow_dispatch`;
 - GitHub Environment `production`;
 - secrets obrigatórios `SUPABASE_ACCESS_TOKEN`, `SUPABASE_DB_PASSWORD` e `SUPABASE_PROJECT_ID`;
+- preview das migrations com `supabase db push --dry-run`;
 - aplicação das migrations pendentes com `supabase db push`;
 - deploy das Edge Functions;
+- verificação da migration history remota;
+- lint do banco remoto em nível de erro;
 - listagem final das funções implantadas;
 - concorrência sem cancelamento, evitando duas promoções simultâneas.
 
@@ -131,7 +134,7 @@ Até que esses componentes estejam configurados, o CI não deve declarar que uma
 
 As migrations e Edge Functions devem ser tratadas como artefatos versionados.
 
-A futura automação deve:
+A automação de promoção deve:
 
 1. validar migrations e Edge Functions no pull request;
 2. executar deploy em staging/preview;
@@ -178,9 +181,10 @@ A ordem recomendada é:
 3. adicionar validação de build sem assinatura;
 4. definir staging/preview;
 5. automatizar deploy Supabase de forma controlada;
-6. adicionar promoção para production;
-7. configurar builds assinados e publicação nas lojas;
-8. adicionar verificações pós-deploy e rollback operacional.
+6. adicionar verificações pós-deploy e registrar a versão promovida;
+7. definir staging/preview e promoção para production;
+8. configurar builds assinados e publicação nas lojas;
+9. definir rollback operacional seguro.
 
 Itens que dependem de credenciais, certificados, stores ou secrets reais permanecem explicitamente como configuração operacional, não como código fictício.
 
