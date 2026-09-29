@@ -1,4 +1,5 @@
 import { createAdminClient, executeAiTask } from "./ai_task.ts";
+import { logError, logEvent } from "../process-ai-task/observability.ts";
 
 const aiBaseUrl = Deno.env.get("THINKNEST_AI_BASE_URL");
 const aiKey = Deno.env.get("THINKNEST_AI_API_KEY");
@@ -29,6 +30,8 @@ Deno.serve(async (req) => {
   }
 
   try {
+    const startedAt = Date.now();
+    logEvent("ai_queue.started", { batch_size: batchSize });
     const db = createAdminClient();
     const { data: tasks, error } = await db
       .from("ai_tasks")
@@ -37,7 +40,10 @@ Deno.serve(async (req) => {
       .lt("attempts", 3)
       .order("created_at", { ascending: true })
       .limit(batchSize);
-    if (error) return reply({ error: error.message }, 500);
+    if (error) {
+      logError("ai_queue.load_failed", { batch_size: batchSize });
+      return reply({ error: error.message }, 500);
+    }
 
     const results = [];
     for (const task of tasks ?? []) {
@@ -52,8 +58,10 @@ Deno.serve(async (req) => {
         )),
       });
     }
+    logEvent("ai_queue.completed", { processed: results.length, duration_ms: Date.now() - startedAt });
     return reply({ processed: results.length, results });
   } catch (error) {
+    logError("ai_queue.failed");
     return reply(
       { error: error instanceof Error ? error.message : String(error) },
       500,
