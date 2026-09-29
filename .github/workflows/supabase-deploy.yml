@@ -38,13 +38,10 @@ jobs:
           version: latest
 
       - name: Apply database migrations
-        run: supabase db push --project-ref "$SUPABASE_PROJECT_ID"
+        run: supabase db push --project-ref "$SUPABASE_PROJECT_ID" --password "$SUPABASE_DB_PASSWORD"
 
       - name: Deploy Edge Functions
         run: supabase functions deploy --project-ref "$SUPABASE_PROJECT_ID"
-
-      - name: Verify migration state
-        run: supabase migration list --project-ref "$SUPABASE_PROJECT_ID"
 
       - name: Verify deployed functions
         run: |
