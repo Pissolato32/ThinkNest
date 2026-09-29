@@ -1,6 +1,6 @@
 # ThinkNest — Plano de Implementação
 
-**Status:** P0 concluído; P1.1 concluído; P1.2 concluído; P1.3 operacional; P1.4 implementado; P1.5 em andamento  
+**Status:** P0 concluído; P1.1 concluído; P1.2 concluído; P1.3 operacional; P1.4 implementado; P1.5 concluído; P1.6 em andamento  
 **Issue principal:** #5  
 **Fonte normativa:** `docs/`
 
@@ -237,9 +237,12 @@ Regras de implementação:
 - A validação funcional de voz/STT com dispositivo físico e provedor real continua como validação operacional de P1.4; não é tratada como requisito para considerar os controles de P1.5 implementados.
 
 ### P1.6 — CI/CD avançado
-- [ ] deploy.
-- [ ] ambientes.
+- [x] quality gates de PR/main.
+- [x] build Android debug sem assinatura.
+- [x] deploy Supabase controlado manualmente.
+- [ ] ambientes staging/preview.
 - [ ] promoção entre ambientes.
+- [ ] pós-deploy e rollback operacional.
 
 - Supabase/Auth.
 - sincronização.
