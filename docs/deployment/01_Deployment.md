@@ -1,6 +1,6 @@
 # ThinkNest — CI/CD e Deployment
 
-**Version:** 2.0  
+**Version:** 2.1  
 **Status:** Approved  
 **Stack:** Flutter/Dart + Supabase  
 **Objetivo:** definir o caminho de validação, build e promoção do ThinkNest sem pressupor serviços de release que ainda não foram configurados.
@@ -38,6 +38,20 @@ O workflow `.github/workflows/flutter.yml` atualmente:
 10. preserva diagnósticos quando há falha.
 
 O CI é um quality gate. Uma execução vermelha bloqueia a progressão da etapa.
+
+### Supabase Deploy
+
+O workflow `.github/workflows/supabase-deploy.yml` implementa o primeiro passo operacional de P1.6:
+
+- execução exclusivamente manual via `workflow_dispatch`;
+- GitHub Environment `production`;
+- secrets obrigatórios `SUPABASE_ACCESS_TOKEN`, `SUPABASE_DB_PASSWORD` e `SUPABASE_PROJECT_ID`;
+- aplicação das migrations pendentes com `supabase db push`;
+- deploy das Edge Functions;
+- listagem final das funções implantadas;
+- concorrência sem cancelamento, evitando duas promoções simultâneas.
+
+A promoção continua sob controle humano até existir um ambiente staging separado.
 
 ### Supabase CI
 
