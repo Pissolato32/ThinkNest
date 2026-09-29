@@ -198,6 +198,9 @@ async function executeVoiceRefinement(
   const sttModel =
     Deno.env.get("THINKNEST_STT_MODEL") ?? "gpt-4o-mini-transcribe";
 
+  const startedAt = Date.now();
+  logEvent("voice_refinement.started", { task_id: task.id, attempt: task.attempts });
+
   try {
     const { data: audio, error: downloadError } = await db.storage
       .from("voice-refinement")
