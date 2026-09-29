@@ -1,5 +1,5 @@
 import { createAdminClient, executeAiTask } from "./ai_task.ts";
-import { logError, logEvent } from "../_shared/observability.ts";
+import { logError, logEvent } from "./observability.ts";
 
 const aiBaseUrl = Deno.env.get("THINKNEST_AI_BASE_URL");
 const aiKey = Deno.env.get("THINKNEST_AI_API_KEY");
