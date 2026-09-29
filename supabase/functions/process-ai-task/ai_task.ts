@@ -1,4 +1,5 @@
 import { createClient, type SupabaseClient } from "npm:@supabase/supabase-js@2";
+import { logError, logEvent } from "../_shared/observability.ts";
 
 export const MAX_ATTEMPTS = 3;
 
@@ -26,6 +27,8 @@ export async function executeAiTask(
   if (task.status !== "PENDING") return { status: task.status };
 
   const attempts = task.attempts + 1;
+  const startedAt = Date.now();
+  logEvent("ai_task.claimed", { task_id: task.id, task_type: task.payload_json?.type, attempt: attempts });
   const { data: claimed, error: claimError } = await db
     .from("ai_tasks")
     .update({
@@ -40,7 +43,10 @@ export async function executeAiTask(
     .select("id,project_id,status,attempts,payload_json")
     .maybeSingle();
 
-  if (claimError) return { status: "PENDING", error: claimError.message };
+  if (claimError) {
+    logError("ai_task.claim_failed", { task_id: task.id, attempt: attempts });
+    return { status: "PENDING", error: claimError.message };
+  }
   if (!claimed) return { status: "RUNNING" };
 
   const type = task.payload_json?.type;
@@ -150,9 +156,11 @@ export async function executeAiTask(
       .eq("id", task.id);
     if (completionError) throw completionError;
 
+    logEvent("ai_task.completed", { task_id: task.id, task_type: type, duration_ms: Date.now() - startedAt, attempt: attempts });
     return { status: "COMPLETED", message_id: messageId };
   } catch (error) {
     const message = error instanceof Error ? error.message : String(error);
+    logError("ai_task.failed", { task_id: task.id, task_type: type, duration_ms: Date.now() - startedAt, attempt: attempts });
     return fail(message);
   }
 }
@@ -189,6 +197,9 @@ async function executeVoiceRefinement(
     Deno.env.get("THINKNEST_STT_API_KEY") ?? defaultApiKey;
   const sttModel =
     Deno.env.get("THINKNEST_STT_MODEL") ?? "gpt-4o-mini-transcribe";
+
+  const startedAt = Date.now();
+  logEvent("voice_refinement.started", { task_id: task.id, attempt: task.attempts });
 
   try {
     const { data: audio, error: downloadError } = await db.storage
@@ -255,6 +266,7 @@ async function executeVoiceRefinement(
 
     await db.storage.from("voice-refinement").remove([storagePath]);
 
+    logEvent("voice_refinement.completed", { task_id: task.id, duration_ms: Date.now() - startedAt, attempt: task.attempts });
     return { status: "COMPLETED" };
   } catch (error) {
     const message = error instanceof Error ? error.message : String(error);
@@ -267,6 +279,7 @@ async function executeVoiceRefinement(
         updated_at: new Date().toISOString(),
       })
       .eq("id", task.id);
+    logError("voice_refinement.failed", { task_id: task.id, duration_ms: Date.now() - startedAt, attempt: task.attempts, terminal: status === "FAILED" });
     return { status, error: message };
   }
 }
