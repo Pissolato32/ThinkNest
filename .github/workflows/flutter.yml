@@ -13,7 +13,7 @@ concurrency:
 jobs:
   analyze-and-test:
     runs-on: ubuntu-latest
-    timeout-minutes: 15
+    timeout-minutes: 20
     steps:
       - uses: actions/checkout@v4
 
@@ -32,11 +32,10 @@ jobs:
 
           manifest = Path("android/app/src/main/AndroidManifest.xml")
           text = manifest.read_text()
-          permission = '    <uses-permission android:name="android.permission.RECORD_AUDIO"/>\\n'
+          permission = '    <uses-permission android:name="android.permission.RECORD_AUDIO"/>\n'
           if "android.permission.RECORD_AUDIO" not in text:
-              text = text.replace("<manifest", "<manifest", 1)
               insert = text.index(">", text.index("<manifest")) + 1
-              text = text[:insert] + "\\n" + permission + text[insert:]
+              text = text[:insert] + "\n" + permission + text[insert:]
           manifest.write_text(text)
 
           plist = Path("ios/Runner/Info.plist")
@@ -84,6 +83,9 @@ jobs:
           flutter test 2>&1 | tee flutter-test.log
           status=${PIPESTATUS[0]}
           exit $status
+
+      - name: Build Android debug APK
+        run: flutter build apk --debug
 
       - name: Upload CI diagnostics on failure
         if: failure()
