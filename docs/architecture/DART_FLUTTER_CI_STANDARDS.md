@@ -6,12 +6,12 @@ Este documento consolida regras que devem ser aplicadas antes de integrar códig
 
 ## 1. Ferramenta canônica
 
-O CI é a referência final para a qualidade do código. A versão de Flutter atualmente fixada no CI é `3.35.7`.
+O CI é a referência final para a qualidade do código. A versão de Flutter atualmente fixada no CI é `3.38.0`.
 
 Executar localmente, na mesma ordem do CI:
 
 ```bash
-flutter create . --platforms=android,web --no-pub
+flutter create . --platforms=android,ios,web --no-pub
 flutter pub get
 dart run build_runner build
 dart format --set-exit-if-changed lib test
