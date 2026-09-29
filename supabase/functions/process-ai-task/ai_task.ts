@@ -1,5 +1,5 @@
 import { createClient, type SupabaseClient } from "npm:@supabase/supabase-js@2";
-import { logError, logEvent } from "../_shared/observability.ts";
+import { logError, logEvent } from "./observability.ts";
 
 export const MAX_ATTEMPTS = 3;
 
