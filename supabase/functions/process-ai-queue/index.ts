@@ -2,6 +2,8 @@ import { createAdminClient, executeAiTask } from "./ai_task.ts";
 
 const aiBaseUrl = Deno.env.get("THINKNEST_AI_BASE_URL");
 const aiKey = Deno.env.get("THINKNEST_AI_API_KEY");
+const sttBaseUrl = Deno.env.get("THINKNEST_STT_BASE_URL");
+const sttKey = Deno.env.get("THINKNEST_STT_API_KEY");
 const model = Deno.env.get("THINKNEST_AI_MODEL") ?? "default";
 const workerSecret = Deno.env.get("THINKNEST_AI_WORKER_SECRET");
 const batchSize = 10;
@@ -22,7 +24,9 @@ Deno.serve(async (req) => {
   if (!workerSecret || req.headers.get("apikey") !== workerSecret) {
     return reply({ error: "Authentication required" }, 401);
   }
-  if (!aiBaseUrl || !aiKey) return reply({ error: "Cloud AI provider is not configured" }, 503);
+  if ((!aiBaseUrl || !aiKey) && (!sttBaseUrl || !sttKey)) {
+    return reply({ error: "Cloud AI/STT provider is not configured" }, 503);
+  }
 
   try {
     const db = createAdminClient();
@@ -39,7 +43,13 @@ Deno.serve(async (req) => {
     for (const task of tasks ?? []) {
       results.push({
         task_id: task.id,
-        ...(await executeAiTask(db, task.id, aiBaseUrl, aiKey, model)),
+        ...(await executeAiTask(
+          db,
+          task.id,
+          aiBaseUrl ?? sttBaseUrl!,
+          aiKey ?? sttKey!,
+          model,
+        )),
       });
     }
     return reply({ processed: results.length, results });
