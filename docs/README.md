@@ -15,16 +15,12 @@ ThinkNest is documented as an AI-assisted product-incubation platform. This hub 
 
 ## Implementation status
 
-This repository currently contains specification and architecture
-documentation only (`docs/`). It does not yet contain the ThinkNest
-Flutter/Supabase application source code.
+ThinkNest is now implemented in this repository as a Flutter/Dart application with Supabase-backed synchronization and Edge Functions. The `docs/` folder remains the canonical source for product, architecture, security, testing, and operational contracts.
 
-- Application source code: not yet present in this repository.
-- Purpose of this repository at this stage: architectural constitution
-  and implementation contracts to guide future development.
-
-This section will be updated with a link to the implementation
-repository once development begins.
+- Application source: Flutter/Dart with Riverpod and Drift.
+- Cloud platform: Supabase Auth, PostgreSQL, Storage, RLS, and Edge Functions.
+- Current implementation status: P0 complete; P1.1/P1.2 complete; P1.3 operational; P1.4 implemented with physical-device/provider validation remaining; P1.5 security and observability controls implemented.
+- Repository role: executable product source plus canonical architecture and implementation documentation.
 
 ## Documentation quality level: AAA
 

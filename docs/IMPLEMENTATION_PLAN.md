@@ -1,6 +1,6 @@
 # ThinkNest — Plano de Implementação
 
-**Status:** P0 concluído; P1.1 concluído; P1.2 concluído  
+**Status:** P0 concluído; P1.1 concluído; P1.2 concluído; P1.3 operacional; P1.4 implementado; P1.5 em andamento  
 **Issue principal:** #5  
 **Fonte normativa:** `docs/`
 
@@ -226,9 +226,15 @@ Regras de implementação:
 
 
 ### P1.5 — Segurança e observabilidade
-- [ ] auditoria.
-- [ ] métricas/logs.
-- [ ] políticas de segurança e ambientes.
+- [x] auditoria.
+- [x] métricas/logs.
+- [x] políticas de segurança e ambientes.
+
+**P1.5 — estado atual:**
+- Auditoria de mutações críticas implementada no Supabase com RLS, funções SECURITY DEFINER restritas e exclusão de conteúdo sensível do metadata.
+- Observabilidade estruturada implementada e implantada nas Edge Functions process-ai-task v5 e process-ai-queue v4, com eventos de ciclo de vida e duração sem registrar prompts, transcrições ou segredos.
+- Política operacional de ambientes, segredos, autenticação interna e promoção está documentada em [docs/security/03_Environment_Policy.md](security/03_Environment_Policy.md).
+- A validação funcional de voz/STT com dispositivo físico e provedor real continua como validação operacional de P1.4; não é tratada como requisito para considerar os controles de P1.5 implementados.
 
 ### P1.6 — CI/CD avançado
 - [ ] deploy.
